@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Import dữ liệu cũ</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:560px;margin:40px auto;padding:0 20px;color:#0d1b2a;line-height:1.6}
+h1{font-size:22px}.box{background:#f6f3ec;border:1px solid #e3ddcf;border-radius:14px;padding:18px;margin:16px 0}
+button{background:#0a1f3c;color:#fff;border:none;padding:14px 22px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer}
+button:disabled{opacity:.5}#log{font-family:monospace;font-size:13px;background:#0d1b2a;color:#9fe6c0;padding:14px;border-radius:10px;margin-top:16px;white-space:pre-wrap;max-height:300px;overflow:auto}
+.warn{background:#fdeaec;border-color:#f0c4c8;color:#9a2530}
+</style></head><body>
+<h1>📥 Import dữ liệu thu nhập cũ</h1>
+<p>Trang này nạp <b>89 giao dịch</b> từ Google Sheet cũ vào Firebase, <b>chỉ chạy 1 lần</b>.</p>
+<div class="box warn"><b>Lưu ý:</b> Đăng nhập đúng tài khoản Google bạn dùng cho app. Chạy import 2 lần sẽ tạo dữ liệu trùng — chỉ bấm nút một lần duy nhất.</div>
+<div class="box">
+  <p id="status">Đang khởi tạo…</p>
+  <button id="loginBtn" onclick="login()" style="display:none">Đăng nhập Google</button>
+  <button id="importBtn" onclick="runImport()" style="display:none" disabled>Bắt đầu Import 89 giao dịch</button>
+</div>
+<div id="log"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 👇 DÁN CÙNG firebaseConfig NHƯ TRONG index.html 👇 */
+const firebaseConfig = {
+  apiKey: "AIzaSyCo1lM5JvWqeYrURQ_sQQ54FixnsFfoxYI",
+  authDomain: "thu-nhap-efad5.firebaseapp.com",
+  projectId: "thu-nhap-efad5",
+  storageBucket: "thu-nhap-efad5.firebasestorage.app",
+  messagingSenderId: "969160788754",
+  appId: "1:969160788754:web:b5889107919794f86941cb"
+};
+/* 👆 ------------------------------------------------ 👆 */
+
+const log=m=>{document.getElementById('log').textContent+=m+"\n";};
+let db,auth,user=null;
+if(firebaseConfig.apiKey.startsWith("PASTE")){
+  document.getElementById('status').textContent="⚠️ Chưa dán firebaseConfig vào file import.html";
+} else {
+  const app=initializeApp(firebaseConfig); auth=getAuth(app); db=getFirestore(app);
+  onAuthStateChanged(auth,u=>{
+    if(u){user=u;document.getElementById('status').textContent="✅ Đã đăng nhập: "+u.email;
+      document.getElementById('loginBtn').style.display='none';
+      document.getElementById('importBtn').style.display='inline-block';
+      document.getElementById('importBtn').disabled=false;
+    }else{document.getElementById('status').textContent="Chưa đăng nhập.";
+      document.getElementById('loginBtn').style.display='inline-block';}
+  });
+}
+window.login=()=>signInWithPopup(auth,new GoogleAuthProvider());
+window.runImport=async()=>{
+  document.getElementById('importBtn').disabled=true;
+  log("Đang tải seed.json…");
+  const seed=await fetch('seed.json').then(r=>r.json());
+  log("Có "+seed.length+" bản ghi. Bắt đầu ghi…");
+  const col=collection(db,"users",user.uid,"income");
+  let ok=0;
+  for(const r of seed){
+    try{ await addDoc(col,r); ok++; if(ok%10===0)log("  …đã ghi "+ok); }
+    catch(e){ log("✗ Lỗi: "+e.code); }
+  }
+  log("🎉 Xong! Đã import "+ok+"/"+seed.length+" giao dịch.");
+  log("Giờ mở index.html để dùng app. KHÔNG chạy lại trang này nữa.");
+};
+</script></body></html>
