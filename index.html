@@ -108,7 +108,13 @@ header.bar .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);bo
 
 /* ---------- Entry list ---------- */
 .search{width:100%;border:1px solid var(--line);background:var(--paper2);border-radius:13px;padding:12px 15px;font-size:15px;font-family:inherit;margin-bottom:14px}
-.tx{background:var(--paper2);border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin-bottom:9px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.12s}
+/* swipe-to-delete wrapper */
+.tx-wrap{position:relative;margin-bottom:9px;border-radius:15px;overflow:hidden}
+.tx-wrap .del-bg{position:absolute;inset:0;background:var(--red);display:flex;align-items:center;justify-content:flex-end;padding-right:24px;color:#fff;font-weight:700;font-size:15px;gap:7px}
+.tx-wrap .del-bg svg{width:21px;height:21px}
+.tx{position:relative;background:var(--paper2);border:1px solid var(--line);border-radius:15px;padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:pan-y;transition:transform .25s cubic-bezier(.25,.8,.3,1);will-change:transform}
+.tx.swiped{transform:translateX(-88px)}
+.tx.dragging{transition:none}
 .tx:active{transform:scale(.99);background:#fbf8f1}
 .tx .tag{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#fff}
 .tx .mid{flex:1;min-width:0}
@@ -118,14 +124,16 @@ header.bar .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);bo
 .empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:14px}
 .empty .em{font-size:40px;margin-bottom:12px}
 
-/* ---------- FAB + bottom nav ---------- */
-.fab{position:fixed;right:max(20px,calc(50% - 380px + 20px));bottom:calc(86px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,var(--gold),#b5852c);color:#fff;border:none;font-size:30px;box-shadow:0 12px 28px -6px rgba(199,154,59,.7);cursor:pointer;z-index:30;display:flex;align-items:center;justify-content:center;transition:transform .15s}
-.fab:active{transform:scale(.9) rotate(90deg)}
+/* ---------- bottom nav + center add ---------- */
 nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--paper2);border-top:1px solid var(--line);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:25}
 nav.tabs .wrapn{max-width:760px;margin:0 auto;width:100%;display:flex}
 nav.tabs button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer}
 nav.tabs button svg{width:23px;height:23px}
 nav.tabs button.on{color:var(--navy)}
+nav.tabs button.addbtn{flex:0 0 auto;margin-top:-22px}
+nav.tabs button.addbtn .plus{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--gold),#b5852c);color:#fff;font-size:30px;font-weight:400;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px -5px rgba(199,154,59,.7);transition:transform .15s;line-height:1}
+nav.tabs button.addbtn:active .plus{transform:scale(.9) rotate(90deg)}
+nav.tabs button.addbtn .addlbl{color:var(--gold);margin-top:3px}
 
 /* ---------- Modal ---------- */
 .modal{position:fixed;inset:0;background:rgba(10,20,35,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:50}
@@ -217,11 +225,12 @@ nav.tabs button.on{color:var(--navy)}
   </div>
 </div>
 
-<!-- FAB + NAV -->
-<button class="fab" id="fab" style="display:none" onclick="openModal()">+</button>
+<!-- bottom nav -->
 <nav class="tabs" id="nav" style="display:none"><div class="wrapn">
   <button class="on" data-v="dash" onclick="go('dash')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 9h8V3h-8z"/></svg>Tổng quan</button>
+  <button class="addbtn" onclick="openModal()" aria-label="Thêm khoản thu">
+    <span class="plus">+</span><span class="addlbl">Thêm</span></button>
   <button data-v="list" onclick="go('list')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Giao dịch</button>
 </div></nav>
@@ -243,7 +252,7 @@ nav.tabs button.on{color:var(--navy)}
     <div class="mrow">
       <button class="mbtn del" id="mDel" style="display:none" onclick="delTx()">🗑</button>
       <button class="mbtn cancel" onclick="closeModal()">Huỷ</button>
-      <button class="mbtn save" onclick="saveTx()">Lưu</button>
+      <button class="mbtn save" id="mSave" onclick="saveTx()">Lưu</button>
     </div>
   </div>
 </div>
@@ -261,12 +270,12 @@ import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc
    (Firebase Console → Project settings → Your apps → Web app → Config)
    ============================================================ */
 const firebaseConfig = {
-  apiKey: "AIzaSyCo1lM5JvWqeYrURQ_sQQ54FixnsFfoxYI",
-  authDomain: "thu-nhap-efad5.firebaseapp.com",
-  projectId: "thu-nhap-efad5",
-  storageBucket: "thu-nhap-efad5.firebasestorage.app",
-  messagingSenderId: "969160788754",
-  appId: "1:969160788754:web:b5889107919794f86941cb"
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  storageBucket: "PASTE.appspot.com",
+  messagingSenderId: "PASTE_SENDER_ID",
+  appId: "PASTE_APP_ID"
 };
 /* ============================================================ */
 
@@ -298,7 +307,7 @@ const fmtVND = n => new Intl.NumberFormat('vi-VN').format(Math.round(n));
 const fmtShort = n => n>=1e9?(n/1e9).toFixed(2).replace(/\.?0+$/,'')+' tỷ':n>=1e6?(n/1e6).toFixed(1).replace(/\.0$/,'')+' tr':fmtVND(n);
 
 /* ---- state ---- */
-let db,auth,txs=[],selYear=null,unsub=null,editId=null;
+let db,auth,txs=[],selYear=null,unsub=null,editId=null,saving=false;
 window.SEED = [];
 
 if(!CONFIGURED){
@@ -315,7 +324,6 @@ window.logout = ()=> signOut(auth);
 function onLogin(u){
   document.getElementById('login').style.display='none';
   document.getElementById('app').style.display='flex';
-  document.getElementById('fab').style.display='flex';
   document.getElementById('nav').style.display='flex';
   document.getElementById('uimg').src = u.photoURL || "";
   const col = collection(db,"users",u.uid,"income");
@@ -331,7 +339,6 @@ function onLogin(u){
 function onLogout(){
   document.getElementById('login').style.display='flex';
   document.getElementById('app').style.display='none';
-  document.getElementById('fab').style.display='none';
   document.getElementById('nav').style.display='none';
   if(unsub){unsub();unsub=null;} txs=[];selYear=null;
 }
@@ -423,13 +430,62 @@ window.renderList = ()=>{
   el.innerHTML=rows.map(t=>{
     const g=t.group||classify(t.note),G=GROUPS[g]||GROUPS['Khác'];
     const d=new Date(t.date);
-    return `<div class="tx" onclick='window.editTx("${t.id}")'>
+    return `<div class="tx-wrap">
+      <div class="del-bg" data-del="${t.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Xoá</div>
+      <div class="tx" data-id="${t.id}">
       <div class="tag" style="background:${G.c}">${G.e}</div>
       <div class="mid"><div class="n">${(t.note||'(không ghi chú)').replace(/</g,'&lt;')}</div>
       <div class="d">${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} · ${g}</div></div>
-      <div class="amt">+${fmtVND(t.amount)}</div></div>`;
+      <div class="amt">+${fmtVND(t.amount)}</div></div></div>`;
   }).join('');
+  bindSwipe();
 };
+
+/* ---- swipe to delete ---- */
+function closeSwiped(except){
+  document.querySelectorAll('.tx.swiped').forEach(c=>{ if(c!==except) c.classList.remove('swiped'); });
+}
+function bindSwipe(){
+  document.querySelectorAll('#list .tx').forEach(card=>{
+    let x0=0,y0=0,dx=0,dragging=false,decided=false,horiz=false;
+    const open=()=>card.classList.contains('swiped');
+    const start=(x,y)=>{ x0=x;y0=y;dx=0;dragging=true;decided=false;horiz=false;card.classList.add('dragging'); };
+    const move=(x,y)=>{
+      if(!dragging)return;
+      const mx=x-x0,my=y-y0;
+      if(!decided){ if(Math.abs(mx)>8||Math.abs(my)>8){decided=true;horiz=Math.abs(mx)>Math.abs(my);} }
+      if(!horiz)return;
+      dx=mx + (open()?-88:0);
+      if(dx>0)dx=0; if(dx<-110)dx=-110;
+      card.style.transform=`translateX(${dx}px)`;
+    };
+    const end=()=>{
+      if(!dragging)return; dragging=false; card.classList.remove('dragging'); card.style.transform='';
+      if(!horiz){ if(!decided){ closeSwiped(null); window.editTx(card.dataset.id); } return; }
+      if(dx<-44){ closeSwiped(card); card.classList.add('swiped'); }
+      else card.classList.remove('swiped');
+    };
+    card._end=end; card._move=move;
+    card.addEventListener('touchstart',e=>start(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
+    card.addEventListener('touchmove',e=>{ move(e.touches[0].clientX,e.touches[0].clientY); if(horiz)e.preventDefault(); },{passive:false});
+    card.addEventListener('touchend',end);
+    card.addEventListener('mousedown',e=>{start(e.clientX,e.clientY);e.preventDefault();});
+    card.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
+    card.addEventListener('mouseup',end);
+    card.addEventListener('mouseleave',()=>{ if(dragging)end(); });
+  });
+  document.querySelectorAll('#list .del-bg').forEach(b=>{
+    b.addEventListener('click',async()=>{
+      const id=b.dataset.del; if(!id||saving)return;
+      if(!confirm('Xoá khoản thu này?')){ closeSwiped(null); return; }
+      saving=true;
+      try{ await deleteDoc(doc(window._col,id)); toast('Đã xoá'); }
+      catch(e){ toast('⚠️ Lỗi xoá: '+(e.code||e.message)); }
+      finally{ saving=false; }
+    });
+  });
+}
 
 /* ---- modal ---- */
 window.openModal=()=>{ editId=null;
@@ -455,20 +511,33 @@ window.showPredict=()=>{ const note=document.getElementById('mNote').value;
   p.style.display='flex'; p.innerHTML=`<span class="pc" style="background:${G.c}"></span>Tự phân loại: ${G.e} ${g}`;
 };
 window.saveTx=async()=>{
+  if(saving) return;                 // chặn bấm Lưu lần 2 khi đang xử lý
   const amount=+document.getElementById('mAmount').value.replace(/[^\d]/g,'');
   const date=document.getElementById('mDate').value;
   const note=document.getElementById('mNote').value.trim();
   if(!amount||!date){toast('Nhập số tiền và ngày');return;}
+  saving=true;
+  const btn=document.getElementById('mSave');
+  if(btn){btn.disabled=true;btn.textContent='Đang lưu…';}
   const data={amount,date,note,group:classify(note),ts:Date.now()};
+  const isEdit=!!editId, ref=isEdit?doc(window._col,editId):null;
+  selYear=new Date(date).getFullYear();
   try{
-    if(editId) await updateDoc(doc(window._col,editId),data);
-    else await addDoc(window._col,data);
-    selYear=new Date(date).getFullYear(); closeModal(); toast(editId?'Đã cập nhật':'Đã thêm khoản thu');
-  }catch(e){toast('Lỗi lưu: '+e.code);}
+    if(isEdit) await updateDoc(ref,data); else await addDoc(window._col,data);
+    toast(isEdit?'Đã cập nhật':'Đã thêm khoản thu');
+  }catch(e){ toast('⚠️ Lỗi lưu: '+(e.code||e.message)); }
+  finally{
+    saving=false;
+    if(btn){btn.disabled=false;btn.textContent='Lưu';}
+    closeModal();                    // luôn đóng popup dù thành công hay lỗi
+  }
 };
-window.delTx=async()=>{ if(!editId)return; if(!confirm('Xoá khoản thu này?'))return;
-  try{ await deleteDoc(doc(window._col,editId)); closeModal(); toast('Đã xoá'); }
-  catch(e){toast('Lỗi xoá: '+e.code);}
+window.delTx=async()=>{ if(!editId||saving)return; if(!confirm('Xoá khoản thu này?'))return;
+  saving=true;
+  const ref=doc(window._col,editId);
+  try{ await deleteDoc(ref); toast('Đã xoá'); }
+  catch(e){ toast('⚠️ Lỗi xoá: '+(e.code||e.message)); }
+  finally{ saving=false; closeModal(); }
 };
 let toastT; window.toast=(m)=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200);};
 
