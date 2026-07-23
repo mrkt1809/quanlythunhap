@@ -1,0 +1,22 @@
+/* ============================================================
+   base.css — Reset + nền + typography gốc
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  background:
+    radial-gradient(120% 80% at 100% 0%, #16365f 0%, transparent 55%),
+    radial-gradient(140% 90% at 0% 100%, #0d2549 0%, transparent 50%),
+    var(--navy);
+  color:var(--ink);
+  min-height:100dvh;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+
+/* trạng thái tải */
+.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.skel{color:#b9c6da;text-align:center;padding:40px}
+.empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:14px}
+.empty .em{font-size:40px;margin-bottom:12px}

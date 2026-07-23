@@ -1,0 +1,21 @@
+/* ============================================================
+   tokens.css — Biến thiết kế dùng chung toàn app
+   Đổi màu / bo góc / bóng đổ ở đây, không sửa rải rác nơi khác.
+   ============================================================ */
+:root{
+  /* màu nền tảng */
+  --navy:#0a1f3c; --navy2:#12305c; --ink:#0d1b2a;
+  --gold:#c79a3b; --gold-soft:#e8d29a;
+
+  /* màu nhóm thu nhập */
+  --teal:#2f9e8f; --rose:#c4585f; --violet:#6c5b9e;
+
+  /* nền giấy */
+  --paper:#f6f3ec; --paper2:#fffdf8; --line:#e3ddcf;
+
+  /* phụ trợ */
+  --muted:#6b7280; --green:#2f7d52; --red:#b23b48;
+
+  --shadow:0 10px 40px -12px rgba(10,31,60,.35);
+  --r:18px;
+}
