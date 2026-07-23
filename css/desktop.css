@@ -1,0 +1,183 @@
+/* ============================================================
+   desktop.css — TOÀN BỘ layout máy tính nằm trong 1 media query.
+   Dưới 1024px file này không có tác dụng gì → mobile giữ nguyên 100%.
+   Nạp SAU components.css để ghi đè được.
+   ============================================================ */
+
+/* Phần tử chỉ dành cho desktop — mặc định ẩn */
+.only-desk{display:none}
+
+/* Trên mobile, .dgrid chỉ là khối trống, các .card bên trong
+   tự có margin-top như cũ → không đổi gì cả. */
+
+@media (min-width:1024px){
+
+  /* ---------- Khung tổng: sidebar trái + nội dung phải ---------- */
+  body{padding-bottom:0}
+
+  .wrap{
+    max-width:none;
+    display:grid;
+    grid-template-columns:248px 1fr;
+    grid-template-areas:"side main";
+    min-height:100dvh;
+  }
+
+  /* Chưa đăng nhập: không chia cột, màn login chiếm toàn bộ.
+     Class .authed do app.js gắn vào <body> khi đăng nhập xong. */
+  body:not(.authed) .wrap{display:flex}
+
+  #app{grid-area:main;min-width:0;min-height:100dvh}
+
+  /* ---------- Sidebar (dùng lại chính element nav.tabs) ---------- */
+  nav.tabs{
+    grid-area:side;
+    position:sticky;
+    top:0;
+    left:auto;right:auto;bottom:auto;
+    height:100dvh;
+    background:transparent;
+    border-top:none;
+    border-right:1px solid rgba(255,255,255,.08);
+    padding:26px 18px 26px 24px;
+    display:flex;
+    align-items:stretch;
+  }
+  nav.tabs .wrapn{
+    max-width:none;
+    flex-direction:column;
+    gap:6px;
+    width:100%;
+  }
+
+  /* nhãn thương hiệu trong sidebar */
+  nav.tabs .brand{
+    display:flex;align-items:center;gap:9px;
+    font-family:'Fraunces';font-weight:600;font-size:20px;
+    color:var(--paper);
+    padding:6px 12px 20px;
+  }
+  nav.tabs .brand .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 0 4px rgba(199,154,59,.25);
+  }
+
+  /* nút điều hướng → hàng ngang, căn trái */
+  nav.tabs button{
+    flex:0 0 auto;
+    flex-direction:row;
+    justify-content:flex-start;
+    gap:12px;
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:14.5px;
+    color:#9fb0c9;
+    transition:background .15s,color .15s;
+  }
+  nav.tabs button:hover{background:rgba(255,255,255,.06);color:var(--paper)}
+  nav.tabs button.on{
+    background:rgba(255,255,255,.1);
+    color:var(--paper);
+  }
+  nav.tabs button svg{width:20px;height:20px;flex-shrink:0}
+
+  /* nút Thêm → chữ nhật vàng, nằm ngay dưới brand */
+  nav.tabs button.addbtn{
+    order:-1;                 /* đẩy lên trên 2 nút điều hướng */
+    margin:0 0 14px;
+    padding:0;
+    background:none;
+  }
+  nav.tabs button.addbtn .plus{
+    width:100%;height:auto;
+    border-radius:12px;
+    padding:13px 16px;
+    font-size:19px;font-weight:400;
+    gap:10px;
+    justify-content:flex-start;
+    box-shadow:0 6px 16px -6px rgba(199,154,59,.6);
+  }
+  nav.tabs button.addbtn .plus::after{
+    content:"Thêm giao dịch";
+    font-size:14.5px;font-weight:700;
+    line-height:1;
+  }
+  nav.tabs button.addbtn:active .plus{transform:scale(.98) rotate(0)}
+  nav.tabs button.addbtn .addlbl{display:none}   /* nhãn đã nằm trong .plus */
+
+  /* ---------- Header + vùng nội dung ---------- */
+  header.bar{padding:26px 34px 18px}
+  header.bar .ttl{display:none}      /* tên app đã có ở sidebar */
+  .usr{margin-left:auto}
+
+  .sheet{
+    border-radius:26px 0 0 0;
+    padding:28px 34px 48px;
+    box-shadow:none;
+    margin-top:0;
+  }
+
+  /* ---------- Dashboard: 4 KPI ngang ---------- */
+  .kgrid{grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+  .kpi{padding:17px 18px}
+  .kpi .v{font-size:22px}
+
+  /* hiện 2 ô KPI chỉ dành cho desktop */
+  .kpi.only-desk{display:block}
+  nav.tabs .brand.only-desk{display:flex}
+
+  /* hero rộng hơn, chữ to hơn một chút */
+  .hero{padding:28px 30px}
+  .hero .big{font-size:46px}
+  .hero .yoy{display:none}   /* đã tách thành ô KPI riêng */
+
+  /* ---------- Biểu đồ 2/3 · Cơ cấu 1/3 ---------- */
+  .dgrid{
+    display:grid;
+    grid-template-columns:1.9fr 1fr;
+    gap:16px;
+    align-items:start;
+    margin-top:16px;
+  }
+  /* bỏ margin-top của .card bên trong grid — khoảng cách do gap lo,
+     nếu để nguyên thì 2 card lệch đỉnh nhau */
+  .dgrid > .card{margin-top:0}
+  .card{padding:20px 22px}
+
+  /* biểu đồ cao hơn, cột dày hơn */
+  .bars{height:260px;gap:10px}
+  .bcol .mo{font-size:11px}
+  .legend{font-size:12px;margin-top:10px}
+
+  /* ---------- Danh sách giao dịch ---------- */
+  .search{max-width:460px;font-size:14.5px}
+  .tx{padding:14px 18px}
+  .tx .mid .n{font-size:14.5px}
+  .tx:hover{background:#fbf8f1}
+  /* Trên desktop vẫn kéo chuột sang trái để lộ nút Xoá (ui/list.js đã hỗ trợ),
+     hoặc bấm vào dòng để mở form sửa rồi xoá từ đó. */
+
+  /* ---------- Modal: hộp thoại giữa màn hình ---------- */
+  .modal{align-items:center}
+  .msheet{
+    max-width:520px;
+    border-radius:22px;
+    padding:28px 30px 30px;
+    animation:pop .28s cubic-bezier(.2,.85,.25,1);
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.55);
+  }
+  @keyframes pop{
+    from{opacity:0;transform:translateY(16px) scale(.97)}
+    to{opacity:1;transform:none}
+  }
+
+  /* toast về góc phải dưới (không còn thanh nav che ở đáy) */
+  .toast{left:auto;right:34px;bottom:34px;transform:translateY(20px)}
+  .toast.on,
+  body .toast.on{transform:translateY(0)}
+}
+
+/* ---------- Màn hình rất rộng: giới hạn bề ngang nội dung ---------- */
+@media (min-width:1600px){
+  .sheet > .view{max-width:1360px}
+}

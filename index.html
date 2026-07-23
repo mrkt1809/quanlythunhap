@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
+<!-- desktop.css nạp CUỐI: chỉ chứa @media (min-width:1024px), ghi đè các file trên -->
+<link rel="stylesheet" href="css/desktop.css">
 </head>
 <body>
 <div class="wrap">
@@ -54,15 +56,22 @@
         <div class="kgrid">
           <div class="kpi"><div class="l">TB mỗi tháng</div><div class="v" id="kAvg">—</div><div class="m" id="kAvgM">trên số tháng có thu</div></div>
           <div class="kpi"><div class="l">Tháng cao nhất</div><div class="v" id="kMax">—</div><div class="m" id="kMaxM"></div></div>
+          <!-- 2 ô dưới chỉ hiện từ 1024px trở lên (xem desktop.css) -->
+          <div class="kpi only-desk"><div class="l">Số giao dịch</div><div class="v" id="kCount">—</div><div class="m" id="kCountM"></div></div>
+          <div class="kpi only-desk"><div class="l">So cùng kỳ</div><div class="v" id="kYoy">—</div><div class="m" id="kYoyM"></div></div>
         </div>
-        <div class="card">
-          <h3>Thu nhập theo tháng <span class="hint" id="cmpHint"></span></h3>
-          <div class="bars" id="bars"></div>
-          <div class="legend" id="barLegend"></div>
-        </div>
-        <div class="card">
-          <h3>Cơ cấu nguồn thu</h3>
-          <div class="cat" id="cat"></div>
+
+        <!-- Trên desktop: biểu đồ 2 phần · cơ cấu 1 phần. Mobile: xếp dọc -->
+        <div class="dgrid">
+          <div class="card">
+            <h3>Thu nhập theo tháng <span class="hint" id="cmpHint"></span></h3>
+            <div class="bars" id="bars"></div>
+            <div class="legend" id="barLegend"></div>
+          </div>
+          <div class="card">
+            <h3>Cơ cấu nguồn thu</h3>
+            <div class="cat" id="cat"></div>
+          </div>
         </div>
       </section>
 
@@ -78,6 +87,8 @@
 
 <!-- bottom nav -->
 <nav class="tabs" id="nav" style="display:none"><div class="wrapn">
+  <!-- chỉ hiện trên desktop, ẩn ở mobile -->
+  <div class="brand only-desk"><span class="dot"></span> Thu nhập</div>
   <button class="on" data-v="dash">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 9h8V3h-8z"/></svg>Tổng quan</button>
   <button class="addbtn" id="btnAdd" aria-label="Thêm khoản thu">

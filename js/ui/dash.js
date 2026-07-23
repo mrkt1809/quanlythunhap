@@ -62,6 +62,22 @@ export function renderDash(txs, year){
   $('kMax').textContent  = st.maxValue > 0 ? fmtShort(st.maxValue) : '—';
   $('kMaxM').textContent = st.maxMonth ? `Tháng ${st.maxMonth}` : '';
 
+  /* 2 ô KPI chỉ hiện trên desktop — vẫn cập nhật bình thường ở mobile,
+     CSS lo phần ẩn/hiện nên JS không cần biết đang ở kích thước nào. */
+  $('kCount').textContent  = st.txCount;
+  $('kCountM').textContent = `${st.activeMonths} tháng có thu`;
+
+  if(st.yoy){
+    const pct = (Math.abs(st.yoy.growth) * 100).toFixed(1);
+    $('kYoy').textContent  = `${st.yoy.up ? '▲' : '▼'} ${pct}%`;
+    $('kYoy').style.color  = st.yoy.up ? 'var(--green)' : 'var(--red)';
+    $('kYoyM').textContent = `cùng kỳ ${year - 1}`;
+  } else {
+    $('kYoy').textContent  = '—';
+    $('kYoy').style.color  = '';
+    $('kYoyM').textContent = 'chưa có năm trước';
+  }
+
   renderChart(txs, year, st);
 
   const sorted = byGroup(txs, year);

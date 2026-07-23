@@ -22,6 +22,8 @@ function showApp(on){
   $('login').style.display = on ? 'none' : 'flex';
   $('app').style.display   = on ? 'flex' : 'none';
   $('nav').style.display   = on ? 'flex' : 'none';
+  /* .authed để desktop.css biết khi nào bật layout 2 cột */
+  document.body.classList.toggle('authed', on);
 }
 
 /* ---------- khởi động ---------- */

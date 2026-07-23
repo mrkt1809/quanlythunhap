@@ -3,7 +3,7 @@
    ⚠️ Mỗi lần deploy có đổi file, PHẢI tăng CACHE lên số mới,
    nếu không máy cũ sẽ dùng lại bản cache cũ.
    ============================================================ */
-const CACHE = 'thunhap-v3';
+const CACHE = 'thunhap-v31';
 
 const ASSETS = [
   './',
@@ -13,6 +13,7 @@ const ASSETS = [
   './css/base.css',
   './css/layout.css',
   './css/components.css',
+  './css/desktop.css',
   './js/app.js',
   './js/config.js',
   './js/store.js',
