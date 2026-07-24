@@ -5,7 +5,7 @@
 import { groupStyle } from "../config.js";
 import { stats, byGroup, years } from "../compute.js";
 import { fmtVND, fmtShort } from "../format.js";
-import { renderChart, renderLegend } from "./chart.js";
+import { renderChart, renderLegend, bindChart } from "./chart.js";
 import { setYear } from "../store.js";
 
 const $ = id => document.getElementById(id);
@@ -78,9 +78,21 @@ export function renderDash(txs, year){
     $('kYoyM').textContent = 'chưa có năm trước';
   }
 
-  renderChart(txs, year, st);
-
+  /* Biểu đồ tự lấy dữ liệu (có áp bộ lọc legend bên trong nó).
+     Legend liệt kê TẤT CẢ nhóm của năm, kể cả nhóm đang bị ẩn,
+     nếu không thì bấm ẩn xong sẽ không còn nút để bật lại. */
   const sorted = byGroup(txs, year);
-  renderCat(sorted, st.total);
+  renderChart(txs, year);
   renderLegend(sorted);
+  renderCat(sorted, st.total);
 }
+
+/* Vẽ lại riêng biểu đồ khi người dùng bật/tắt nhóm ở legend.
+   Không đụng tới KPI vì KPI luôn phản ánh toàn bộ dữ liệu. */
+export function refreshChart(txs, year){
+  if(year == null) return;
+  renderChart(txs, year);
+  renderLegend(byGroup(txs, year));
+}
+
+export { bindChart };

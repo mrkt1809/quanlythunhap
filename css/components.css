@@ -29,15 +29,56 @@
 .card h3 .hint{font-family:'Plus Jakarta Sans';font-size:11px;color:var(--muted);font-weight:500}
 
 /* ---------- Biểu đồ cột theo tháng ---------- */
-.bars{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:8px}
-.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+
+/* chartbox: trục Y bên trái + vùng vẽ bên phải. Là gốc toạ độ cho tooltip. */
+.chartbox{position:relative;display:flex;gap:8px;padding-top:6px}
+
+/* trục Y — các mốc chia đều, chữ căn phải sát vạch */
+.yaxis{display:flex;flex-direction:column;justify-content:space-between;
+  flex:0 0 auto;height:150px;padding-bottom:20px;text-align:right}
+.ytick{height:0;display:flex;align-items:center;justify-content:flex-end}
+.ytick span{font-size:10px;color:var(--muted);font-weight:600;line-height:1;white-space:nowrap;transform:translateY(-1px)}
+
+/* vùng vẽ */
+.plot{position:relative;flex:1;min-width:0}
+
+/* đường kẻ ngang, khớp đúng vị trí các mốc trục Y */
+.grid{position:absolute;inset:0 0 20px 0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.gline{height:1px;background:var(--line);opacity:.7}
+.gline:last-child{opacity:1}
+
+.bars{position:relative;display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:8px}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;cursor:pointer;outline:none}
 .bcol .stack{width:100%;display:flex;flex-direction:column-reverse;border-radius:5px 5px 0 0;overflow:hidden;min-height:2px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
 .bcol .seg{width:100%}
-.bcol .mo{font-size:10px;color:var(--muted);font-weight:600}
+.bcol .mo{font-size:10px;color:var(--muted);font-weight:600;height:14px;line-height:14px}
 .bcol.cmp .stack{opacity:.28}
-/* khối bọc bên trong mỗi cột (trước đây viết inline style) */
 .bcol .colbox{position:relative;width:100%;height:100%;display:flex;align-items:flex-end;justify-content:flex-end}
 .bcol .cmpbar{position:absolute;width:42%;left:4%;background:#9aa0a6;opacity:.3}
+
+/* cột đang được trỏ vào */
+.bcol.hot .stack{filter:brightness(1.1)}
+.bcol.hot .mo{color:var(--navy)}
+.bcol:focus-visible .stack{box-shadow:0 0 0 2px var(--gold)}
+
+/* ---------- Tooltip ---------- */
+.tip{position:absolute;left:0;top:0;z-index:20;pointer-events:none;
+  background:var(--ink);color:#fff;border-radius:12px;padding:10px 12px;
+  min-width:150px;max-width:min(240px,88vw);
+  box-shadow:0 12px 32px -8px rgba(0,0,0,.5);
+  opacity:0;transform:translateY(4px);transition:opacity .14s,transform .14s}
+.tip.on{opacity:1;transform:none}
+.tt-h{font-weight:700;font-size:13px;margin-bottom:8px;color:var(--gold-soft)}
+.tt-r{display:flex;justify-content:space-between;gap:14px;font-size:12px;margin-bottom:4px}
+.tt-n{display:flex;align-items:center;gap:6px;color:#d5dceb;white-space:nowrap}
+.tt-n i{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.tt-v{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.tt-tot{display:flex;justify-content:space-between;gap:14px;font-size:12.5px;font-weight:700;
+  margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.18);font-variant-numeric:tabular-nums}
+.tt-cmp{margin-top:6px;font-size:11.5px;font-weight:600}
+.tt-cmp.up{color:#9fe6c0} .tt-cmp.down{color:#ffb4ba}
+.tt-prev{color:#8d9ab0;font-weight:500}
+.tt-empty{font-size:12px;color:#8d9ab0}
 
 /* ---------- Cơ cấu nguồn thu ---------- */
 .cat{margin-top:13px}
@@ -49,9 +90,17 @@
 .track{height:8px;background:#ece6d8;border-radius:100px;overflow:hidden}
 .track .fill{height:100%;border-radius:100px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
 
-.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:6px;font-size:11px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:5px}
-.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+/* legend: mỗi mục là nút bấm để ẩn/hiện nhóm trên biểu đồ */
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.legend .lg{display:inline-flex;align-items:center;gap:6px;
+  background:none;border:1px solid var(--line);border-radius:100px;
+  padding:5px 11px;font-size:11.5px;font-family:inherit;font-weight:600;
+  color:var(--ink);cursor:pointer;transition:.15s;line-height:1}
+.legend .lg:hover{background:#f0ebdf}
+.legend .lg i{width:9px;height:9px;border-radius:2px;flex-shrink:0;transition:.15s}
+/* nhóm đang bị ẩn: mờ đi và gạch ngang */
+.legend .lg.off{color:var(--muted);opacity:.55;text-decoration:line-through}
+.legend .lg.off i{background:transparent!important;box-shadow:inset 0 0 0 1.5px var(--muted)}
 
 /* ---------- Danh sách giao dịch ---------- */
 .search{width:100%;border:1px solid var(--line);background:var(--paper2);border-radius:13px;padding:12px 15px;font-size:15px;font-family:inherit;margin-bottom:14px}

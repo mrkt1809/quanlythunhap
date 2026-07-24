@@ -56,7 +56,46 @@ export function yoy(txs, y){
   return { curSP, prevSP, growth, up: growth >= 0 };
 }
 
-/* Gói chỉ số tổng hợp cho dashboard */
+/* Chia trục Y thành các mốc "tròn" dễ đọc.
+   VD: đỉnh 109tr → [0, 30tr, 60tr, 90tr, 120tr] thay vì 0/27.25/54.5/...
+   Trả về { ticks:[...], top: giá_trị_cao_nhất_của_trục } */
+export function axisTicks(peak, count = 4){
+  if(!(peak > 0)) return { ticks:[0], top:1 };
+  const raw  = peak / count;
+  const mag  = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  // chọn bước nhảy tròn gần nhất
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+  const top  = Math.ceil(peak / step) * step;
+  const ticks = [];
+  for(let v = 0; v <= top + step/2; v += step) ticks.push(v);
+  return { ticks, top };
+}
+
+/* Số liệu biểu đồ SAU KHI lọc bớt nhóm (dùng cho legend bật/tắt).
+   hidden: Set tên nhóm đang bị ẩn. Rỗng = hiện tất cả.
+   Lưu ý: chỉ biểu đồ bị lọc. Các ô KPI phía trên luôn giữ số liệu đầy đủ. */
+export function chartData(txs, y, hidden = new Set()){
+  const keep = t => !hidden.has(groupOf(t));
+
+  const cur  = Array(12).fill(0);
+  const prev = Array(12).fill(0);
+  const byMG = Array.from({length:12}, () => ({}));
+
+  yearTx(txs, y).filter(keep).forEach(t => {
+    const mi = new Date(t.date).getMonth(), g = groupOf(t);
+    cur[mi]    += t.amount;
+    byMG[mi][g] = (byMG[mi][g] || 0) + t.amount;
+  });
+
+  yearTx(txs, y-1).filter(keep).forEach(t => {
+    prev[new Date(t.date).getMonth()] += t.amount;
+  });
+
+  const hasCompare = prev.some(x => x > 0);
+  const peak = Math.max(...cur, ...prev, 1);
+  return { cur, prev, byMG, hasCompare, peak, axis: axisTicks(peak) };
+}
 export function stats(txs, y){
   const cur   = yearTx(txs, y);
   const m     = monthly(txs, y);

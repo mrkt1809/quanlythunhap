@@ -65,7 +65,15 @@
         <div class="dgrid">
           <div class="card">
             <h3>Thu nhập theo tháng <span class="hint" id="cmpHint"></span></h3>
-            <div class="bars" id="bars"></div>
+            <!-- chartBox: khung định vị cho tooltip · yaxis: mốc trục Y · grid: đường kẻ ngang -->
+            <div class="chartbox" id="chartBox">
+              <div class="yaxis" id="yaxis"></div>
+              <div class="plot">
+                <div class="grid" id="grid"></div>
+                <div class="bars" id="bars"></div>
+              </div>
+              <div class="tip" id="tip"></div>
+            </div>
             <div class="legend" id="barLegend"></div>
           </div>
           <div class="card">

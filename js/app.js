@@ -3,7 +3,7 @@
    ============================================================ */
 import { CONFIGURED } from "./config.js";
 import * as store from "./store.js";
-import { renderDash, bindYears } from "./ui/dash.js";
+import { renderDash, refreshChart, bindYears, bindChart } from "./ui/dash.js";
 import { renderList, bindList } from "./ui/list.js";
 import { openAdd, bindModal } from "./ui/modal.js";
 import { toast } from "./ui/toast.js";
@@ -37,6 +37,9 @@ if(!CONFIGURED){
 bindYears();
 bindList();
 bindModal();
+
+/* Khi bấm legend ẩn/hiện nhóm: chỉ vẽ lại biểu đồ, không đụng KPI */
+bindChart(() => refreshChart(store.getTxs(), store.getYear()));
 
 $('btnLogin').addEventListener('click', async () => {
   try{ await store.login(); }

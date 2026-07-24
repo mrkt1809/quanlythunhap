@@ -145,9 +145,16 @@
   .card{padding:20px 22px}
 
   /* biểu đồ cao hơn, cột dày hơn */
+  /* biểu đồ cao hơn — trục Y phải cao bằng đúng vùng cột */
   .bars{height:260px;gap:10px}
+  .yaxis{height:260px}
+  .chartbox{gap:10px}
+  .ytick span{font-size:11px}
   .bcol .mo{font-size:11px}
-  .legend{font-size:12px;margin-top:10px}
+  .legend{margin-top:14px;gap:7px}
+  .legend .lg{font-size:12px;padding:6px 12px}
+  .tip{min-width:210px;padding:12px 15px}
+  .tt-r{font-size:12.5px}
 
   /* ---------- Danh sách giao dịch ---------- */
   .search{max-width:460px;font-size:14.5px}
