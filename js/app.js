@@ -17,12 +17,11 @@ function go(v){
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
 }
 
-/* ---------- hiện / ẩn khung app ---------- */
+/* ---------- hiện / ẩn khung app ----------
+   Chỉ gắn/gỡ class trên <body>, KHÔNG đặt style trực tiếp.
+   Lý do: inline style thắng mọi quy tắc CSS, nên nếu gán display ở đây thì
+   grid-area của sidebar trên desktop sẽ bị vô hiệu và nav rơi xuống cuối trang. */
 function showApp(on){
-  $('login').style.display = on ? 'none' : 'flex';
-  $('app').style.display   = on ? 'flex' : 'none';
-  $('nav').style.display   = on ? 'flex' : 'none';
-  /* .authed để desktop.css biết khi nào bật layout 2 cột */
   document.body.classList.toggle('authed', on);
 }
 

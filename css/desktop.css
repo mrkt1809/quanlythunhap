@@ -40,9 +40,9 @@
     border-top:none;
     border-right:1px solid rgba(255,255,255,.08);
     padding:26px 18px 26px 24px;
-    display:flex;
     align-items:stretch;
   }
+  /* chỉ hiện sidebar khi đã đăng nhập — quy tắc display nằm ở layout.css */
   nav.tabs .wrapn{
     max-width:none;
     flex-direction:column;
