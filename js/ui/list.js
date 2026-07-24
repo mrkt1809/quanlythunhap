@@ -16,17 +16,36 @@ const SWIPE_OPEN = -88;   // độ mở khi để lộ nút Xoá
 const SWIPE_MAX  = -110;  // kéo tối đa
 const SWIPE_TRIG = -44;   // ngưỡng để chốt mở
 
+/* Lọc theo tháng khi bấm vào cột biểu đồ. null = xem cả năm. */
+let moFilter = null;
+export const setMonthFilter = m => { moFilter = m; renderList(); };
+export const clearMonthFilter = () => { moFilter = null; };
+
 export function renderList(){
   const txs = getTxs(), year = getYear();
   if(year == null) return;
 
   const q = stripVN($('search').value || '');
   let rows = yearTx(txs, year);
+  if(moFilter !== null) rows = rows.filter(t => new Date(t.date).getMonth() === moFilter);
   if(q) rows = rows.filter(t => stripVN(t.note || '').includes(q));
+
+  /* chip hiện bộ lọc tháng đang áp dụng */
+  const chip = $('moChip');
+  if(moFilter === null){
+    chip.style.display = 'none';
+  }else{
+    const sum = rows.reduce((s,t) => s + t.amount, 0);
+    chip.style.display = 'flex';
+    chip.innerHTML = `<span class="ch-t">Tháng ${moFilter+1}/${year}</span>
+      <span class="ch-s">${rows.length} khoản · ${fmtVND(sum)}</span>
+      <button class="ch-x" id="moChipX" aria-label="Bỏ lọc tháng">×</button>`;
+  }
 
   const el = $('list');
   if(!rows.length){
-    el.innerHTML = `<div class="empty"><div class="em">🗂</div>Chưa có giao dịch${q ? ' khớp tìm kiếm' : ' năm ' + year}</div>`;
+    const what = moFilter !== null ? ` tháng ${moFilter+1}` : (q ? ' khớp tìm kiếm' : ' năm ' + year);
+    el.innerHTML = `<div class="empty"><div class="em">🗂</div>Chưa có giao dịch${what}</div>`;
     return;
   }
 
@@ -58,6 +77,11 @@ export function bindList(){
 
   /* tìm kiếm */
   $('search').addEventListener('input', renderList);
+
+  /* bỏ lọc tháng (nút × trên chip — chip được vẽ lại nên phải uỷ quyền) */
+  $('moChip').addEventListener('click', e => {
+    if(e.target.closest('#moChipX')){ moFilter = null; renderList(); }
+  });
 
   /* trạng thái kéo — dùng chung cho cả chuột và cảm ứng */
   let card = null, x0 = 0, y0 = 0, dx = 0, decided = false, horiz = false;

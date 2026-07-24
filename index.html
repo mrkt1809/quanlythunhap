@@ -85,8 +85,31 @@
 
       <!-- TRANSACTIONS -->
       <section class="view" id="v-list">
-        <input class="search" id="search" placeholder="🔍 Tìm theo ghi chú...">
+        <div class="lrow">
+          <input class="search" id="search" placeholder="🔍 Tìm theo ghi chú...">
+          <button class="btn-exp" id="expTx" title="Xuất danh sách ra CSV">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+            <span>CSV</span>
+          </button>
+        </div>
+        <!-- chip hiện bộ lọc tháng (khi bấm vào cột biểu đồ) -->
+        <div class="mochip" id="moChip" style="display:none"></div>
         <div id="list"></div>
+      </section>
+
+      <!-- REPORT -->
+      <section class="view" id="v-rpt">
+        <div class="rhead">
+          <div>
+            <h2 class="rttl" id="rptTitle">Báo cáo</h2>
+            <div class="rsub" id="rptSub"></div>
+          </div>
+          <button class="btn-exp" id="expRpt" title="Xuất báo cáo ra CSV">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+            <span>CSV</span>
+          </button>
+        </div>
+        <div id="rpt"></div>
       </section>
 
     </div>
@@ -102,6 +125,8 @@
       <span class="plus">+</span><span class="addlbl">Thêm</span></button>
     <button data-v="list">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Giao dịch</button>
+    <button data-v="rpt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>Báo cáo</button>
   </div></nav>
 </div>
 

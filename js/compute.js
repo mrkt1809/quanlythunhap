@@ -96,6 +96,40 @@ export function chartData(txs, y, hidden = new Set()){
   const peak = Math.max(...cur, ...prev, 1);
   return { cur, prev, byMG, hasCompare, peak, axis: axisTicks(peak) };
 }
+/* Bảng báo cáo: 12 tháng × các nhóm, kèm luỹ kế và so cùng kỳ.
+   Trả về { groups, rows, totalByGroup, grandTotal }
+   - groups : tên nhóm có phát sinh trong năm, sắp theo tổng giảm dần
+   - rows[i]: { month, byGroup{}, total, cum, prev, diff, pct } cho tháng i+1 */
+export function reportMatrix(txs, y){
+  const groups = byGroup(txs, y).map(([g]) => g);
+  const byMG   = monthlyByGroup(txs, y);
+  const cur    = monthly(txs, y);
+  const prev   = monthly(txs, y-1);
+
+  let cum = 0;
+  const rows = cur.map((total, i) => {
+    cum += total;
+    const p    = prev[i];
+    const diff = total - p;
+    return {
+      month  : i + 1,
+      byGroup: byMG[i],
+      total, cum,
+      prev   : p,
+      diff,
+      pct    : p > 0 ? diff / p : null
+    };
+  });
+
+  const totalByGroup = {};
+  groups.forEach(g => {
+    totalByGroup[g] = rows.reduce((s, r) => s + (r.byGroup[g] || 0), 0);
+  });
+
+  return { groups, rows, totalByGroup, grandTotal: cum, hasPrev: prev.some(x => x > 0) };
+}
+
+/* Gói chỉ số tổng hợp cho dashboard */
 export function stats(txs, y){
   const cur   = yearTx(txs, y);
   const m     = monthly(txs, y);

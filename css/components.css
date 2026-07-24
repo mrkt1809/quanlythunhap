@@ -144,3 +144,73 @@
 /* ---------- Toast ---------- */
 .toast{position:fixed;bottom:calc(96px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:100px;font-size:14px;font-weight:600;opacity:0;transition:.3s;z-index:60;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ============================================================
+   Ver 3.3 — chip lọc tháng · nút xuất CSV · bảng báo cáo
+   ============================================================ */
+
+/* ---------- hàng tìm kiếm + nút CSV ---------- */
+.lrow{display:flex;gap:9px;align-items:stretch;margin-bottom:12px}
+.lrow .search{margin-bottom:0;flex:1}
+
+.btn-exp{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+  background:var(--paper2);border:1px solid var(--line);border-radius:13px;
+  padding:0 15px;font-family:inherit;font-size:13px;font-weight:700;
+  color:var(--navy);cursor:pointer;transition:.15s}
+.btn-exp:hover{background:#f0ebdf}
+.btn-exp:active{transform:scale(.97)}
+.btn-exp svg{width:17px;height:17px;flex-shrink:0}
+
+/* ---------- chip lọc tháng ---------- */
+.mochip{display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  background:var(--navy);color:var(--paper2);border-radius:100px;
+  padding:9px 8px 9px 16px;font-size:13px}
+.mochip .ch-t{font-weight:700}
+.mochip .ch-s{color:#b9c6da;flex:1;font-variant-numeric:tabular-nums}
+.mochip .ch-x{background:rgba(255,255,255,.15);border:none;color:#fff;
+  width:26px;height:26px;border-radius:50%;font-size:18px;line-height:1;
+  cursor:pointer;flex-shrink:0;font-family:inherit}
+.mochip .ch-x:hover{background:rgba(255,255,255,.28)}
+
+/* biểu đồ: cột bấm được */
+.bcol:hover .stack{filter:brightness(1.08)}
+
+/* ---------- trang Báo cáo ---------- */
+.rhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+/* nút CSV ở đây phải tự có chiều cao: .rhead dùng flex-start nên nút
+   sẽ co lại bằng chiều cao chữ (~19px) — quá nhỏ để chạm trên điện thoại */
+.rhead .btn-exp{height:42px;align-self:flex-start}
+.rttl{font-family:'Fraunces';font-weight:600;font-size:21px;line-height:1.2}
+.rsub{font-size:13px;color:var(--muted);margin-top:3px}
+
+/* bảng cuộn ngang, cột đầu dính lại khi cuộn */
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);border-radius:var(--r);background:var(--paper2)}
+.rtbl{border-collapse:separate;border-spacing:0;width:100%;font-size:12.5px;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.rtbl th,.rtbl td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line)}
+.rtbl th{font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.03em;background:#f2ede1;position:sticky;top:0;z-index:2}
+.rtbl th:first-child,.rtbl td:first-child{text-align:left}
+
+/* cột "Tháng" dính bên trái khi cuộn ngang */
+.rtbl .sticky-c{position:sticky;left:0;background:var(--paper2);z-index:1;font-weight:700}
+.rtbl thead .sticky-c{background:#f2ede1;z-index:3}
+.rtbl tfoot .sticky-c{background:#efe9db}
+
+.rtbl th .hdot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+.rtbl .z{color:#c9c2b2}
+.rtbl .strong{font-weight:700;color:var(--ink)}
+.rtbl .cum{color:var(--muted)}
+.rtbl tr.dim td{opacity:.45}
+.rtbl td.up{color:var(--green);font-weight:600}
+.rtbl td.down{color:var(--red);font-weight:600}
+.rtbl tbody tr:hover td{background:#faf7f0}
+.rtbl tbody tr:hover .sticky-c{background:#faf7f0}
+.rtbl tfoot td{background:#efe9db;font-weight:700;border-bottom:none;border-top:2px solid var(--line)}
+
+.tbl-hint{font-size:11.5px;color:var(--muted);margin-top:9px;text-align:center}
+
+/* gợi ý chạm lần 2 (chỉ hiện trên thiết bị cảm ứng) */
+.tt-hint{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.15);
+  font-size:11px;color:var(--gold-soft);font-weight:600}

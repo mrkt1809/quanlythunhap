@@ -92,13 +92,20 @@ function tipHTML(i){
            </div>`;
   }
 
+  /* trên cảm ứng: nhắc chạm lần nữa để xem chi tiết giao dịch */
+  const hint = touchMode ? `<div class="tt-hint">Chạm lần nữa để xem giao dịch</div>` : '';
+
   return `<div class="tt-h">Tháng ${i+1}/${ctx.year}</div>
           ${rows}
           <div class="tt-tot"><span>Tổng</span><span>${fmtVND(total)}</span></div>
-          ${cmp}`;
+          ${cmp}${hint}`;
 }
 
 let hotCol = null;
+
+/* Trạng thái cho thao tác chạm (xem chú thích ở bindChart) */
+let touchMode = false;   // lần tương tác gần nhất là chạm hay chuột
+let armedCol  = null;    // cột đã chạm lần 1, chờ chạm lần 2 để lọc
 
 function showTip(col){
   const tp = $('tip');
@@ -130,8 +137,29 @@ function hideTip(){
 }
 
 /* ---------------- gắn sự kiện 1 lần ---------------- */
-export function bindChart(onFilterChange){
+export function bindChart(onFilterChange, onMonthClick){
   const bars = $('bars');
+
+  /* Bấm vào cột → mở danh sách giao dịch tháng đó.
+     Desktop: rê chuột = xem tooltip, bấm = lọc → hai thao tác tách bạch.
+     Cảm ứng: chỉ có một thao tác chạm, nên chạm lần 1 hiện tooltip,
+     chạm lần 2 vào ĐÚNG cột đó mới lọc. Nếu lọc ngay từ lần đầu thì
+     tooltip vừa hiện đã bị chuyển tab, không kịp đọc. */
+  bars.addEventListener('click', e => {
+    const col = e.target.closest('.bcol');
+    if(!col || !onMonthClick) return;
+
+    if(touchMode){
+      if(armedCol !== col){ armedCol = col; return; }   // lần chạm đầu: chỉ xem
+      armedCol = null;
+    }
+    onMonthClick(+col.dataset.mo);
+  });
+  bars.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const col = e.target.closest('.bcol');
+    if(col && onMonthClick){ e.preventDefault(); onMonthClick(+col.dataset.mo); }
+  });
 
   /* Dùng Pointer Events và lọc theo pointerType.
      Lý do: trên thiết bị cảm ứng, sau touchend trình duyệt còn phát sinh
@@ -150,9 +178,15 @@ export function bindChart(onFilterChange){
      Một listener duy nhất trên document — tách làm hai sẽ bị bubbling
      khiến cái tắt chạy sau cái bật. */
   document.addEventListener('pointerdown', e => {
-    if(e.pointerType === 'mouse') return;
+    if(e.pointerType === 'mouse'){ touchMode = false; return; }
+    touchMode = true;
     const col = e.target.closest('#bars .bcol');
-    col ? showTip(col) : hideTip();
+    if(col){
+      showTip(col);
+    }else{
+      hideTip();
+      armedCol = null;   // chạm ra ngoài thì huỷ trạng thái chờ
+    }
   }, { passive:true });
 
   /* bàn phím (Tab để duyệt từng tháng) */

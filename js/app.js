@@ -4,17 +4,20 @@
 import { CONFIGURED } from "./config.js";
 import * as store from "./store.js";
 import { renderDash, refreshChart, bindYears, bindChart } from "./ui/dash.js";
-import { renderList, bindList } from "./ui/list.js";
+import { renderList, bindList, setMonthFilter, clearMonthFilter } from "./ui/list.js";
+import { renderReport } from "./ui/report.js";
 import { openAdd, bindModal } from "./ui/modal.js";
 import { toast } from "./ui/toast.js";
+import { exportTransactions, exportReport } from "./export.js";
 
 const $ = id => document.getElementById(id);
 
-/* ---------- điều hướng giữa 2 màn hình ---------- */
+/* ---------- điều hướng giữa các màn hình ---------- */
 function go(v){
   document.querySelectorAll('.view').forEach(e => e.classList.remove('on'));
   $('v-' + v).classList.add('on');
   document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  window.scrollTo({ top:0 });
 }
 
 /* ---------- hiện / ẩn khung app ----------
@@ -37,8 +40,13 @@ bindYears();
 bindList();
 bindModal();
 
-/* Khi bấm legend ẩn/hiện nhóm: chỉ vẽ lại biểu đồ, không đụng KPI */
-bindChart(() => refreshChart(store.getTxs(), store.getYear()));
+/* Biểu đồ có 2 tương tác:
+   - bấm legend → vẽ lại biểu đồ (KPI giữ nguyên)
+   - bấm cột    → sang tab Giao dịch, lọc đúng tháng đó */
+bindChart(
+  () => refreshChart(store.getTxs(), store.getYear()),
+  mo => { setMonthFilter(mo); go('list'); }
+);
 
 $('btnLogin').addEventListener('click', async () => {
   try{ await store.login(); }
@@ -51,6 +59,16 @@ document.querySelectorAll('nav.tabs button[data-v]').forEach(b => {
   b.addEventListener('click', () => go(b.dataset.v));
 });
 
+/* ---------- xuất CSV ---------- */
+$('expTx').addEventListener('click', () => {
+  const n = exportTransactions(store.getTxs(), store.getYear());
+  toast(n ? `Đã xuất ${n} giao dịch` : 'Không có dữ liệu để xuất');
+});
+$('expRpt').addEventListener('click', () => {
+  const n = exportReport(store.getTxs(), store.getYear());
+  toast(n ? `Đã xuất báo cáo ${store.getYear()}` : 'Không có dữ liệu để xuất');
+});
+
 /* phản ứng khi đăng nhập / đăng xuất */
 store.onAuth(u => {
   if(u && u.error){ toast('Lỗi đọc dữ liệu: ' + u.error); return; }
@@ -59,9 +77,13 @@ store.onAuth(u => {
 });
 
 /* phản ứng khi dữ liệu đổi — mỗi màn hình tự vẽ lại phần của mình */
+let lastYear = null;
 store.subscribe((txs, year) => {
+  /* đổi năm thì bỏ lọc tháng, tránh lọc tháng của năm cũ */
+  if(year !== lastYear){ clearMonthFilter(); lastYear = year; }
   renderDash(txs, year);
   renderList();
+  renderReport(txs, year);
 });
 
 /* ---------- PWA ---------- */
