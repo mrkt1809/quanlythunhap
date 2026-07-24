@@ -48,8 +48,7 @@
     flex-direction:column;
     gap:6px;
     width:100%;
-    /* chừa chỗ cho .fab (fixed, cao 46px, đặt ở top:76px) */
-    padding-top:60px;
+    padding-top:4px;
   }
 
   /* nhãn thương hiệu trong sidebar */
@@ -83,24 +82,10 @@
   }
   nav.tabs button svg{width:20px;height:20px;flex-shrink:0}
 
-  /* Nút Thêm trên desktop: đặt vào ĐÚNG vị trí trong sidebar, dưới brand.
-     FAB nằm ngoài <nav> nên dùng fixed + toạ độ khớp với padding sidebar
-     (padding-left 24px, padding-right 18px, brand cao ~46px). */
-  .fab{
-    right:auto;
-    left:24px;
-    top:76px;
-    bottom:auto;
-    width:206px;                /* 248 - 24 - 18 */
-    height:46px;
-    padding:0 16px;
-    border-radius:12px;
-    justify-content:flex-start;
-    font-size:14.5px;
-    box-shadow:0 6px 16px -6px rgba(199,154,59,.6);
-  }
-  .fab:active{transform:scale(.98)}
-  .fab .plus{font-size:20px;margin-top:-1px}
+  /* Nút Thêm trên desktop: cùng ở header như mobile — một chỗ duy nhất
+     cho cả hai nền tảng, không phải nhớ hai vị trí khác nhau. */
+  .btn-add{height:38px;padding:0 18px 0 14px;font-size:14.5px;margin-left:auto}
+  .btn-add .plus{font-size:20px}
 
   /* ---------- Header + vùng nội dung ---------- */
   header.bar{padding:26px 34px 18px}

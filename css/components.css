@@ -223,3 +223,25 @@
 /* gợi ý chạm lần 2 (chỉ hiện trên thiết bị cảm ứng) */
 .tt-hint{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.15);
   font-size:11px;color:var(--gold-soft);font-weight:600}
+
+
+/* ============================================================
+   Header 2 hàng trên màn hẹp
+   ⚠️ Đặt ở components.css chứ KHÔNG ở layout.css: file này nạp sau,
+   nếu để bên kia thì .years{flex:1} ở trên sẽ ghi đè mất.
+   ============================================================ */
+@media (max-width:767px){
+  header.bar{flex-wrap:wrap;padding:14px 14px 10px;gap:8px}
+  header.bar .ttl{font-size:18px}
+  .btn-add{order:2;margin-left:auto}
+  .usr{order:3}
+  /* pill năm chiếm trọn hàng dưới — phải ghi đè cả `flex`,
+     chỉ đặt flex-basis thì flex-shrink vẫn cho nó co lại ở hàng trên */
+  .years{order:4;flex:0 0 100%;width:100%;margin:2px 0 0}
+}
+
+@media (max-width:389px){
+  header.bar .ttl{font-size:16px}
+  .usr img{width:30px;height:30px}
+  .usr button{font-size:11px;padding:6px 10px}
+}

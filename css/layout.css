@@ -23,11 +23,9 @@ header.bar .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);bo
 .usr img{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.25)}
 .usr button{background:rgba(255,255,255,.12);color:#cdd8e8;border:none;font-size:12px;padding:7px 12px;border-radius:100px;cursor:pointer}
 
-/* Đệm đáy 150px: đủ cho thanh nav (~66px) CỘNG nút FAB nổi phía trên nó
-   (cao 54px, cách đáy 74px → chiếm tới ~128px).
-   Đây chính là lỗi của bản FAB cũ ở Ver 1: thiếu đệm nên nút che mất
-   bản ghi cuối cùng trong danh sách. */
-.sheet{background:var(--paper);border-radius:26px 26px 0 0;flex:1;padding:22px 18px 150px;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);margin-top:4px}
+/* Đệm đáy 100px cho thanh nav (~66px) + khoảng thở.
+   Không cần dư như bản FAB nổi vì nút Thêm đã chuyển lên header. */
+.sheet{background:var(--paper);border-radius:26px 26px 0 0;flex:1;padding:22px 18px 100px;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);margin-top:4px}
 
 /* ---------- Views ---------- */
 .view{display:none;animation:rise .4s cubic-bezier(.2,.8,.2,1)}
@@ -41,33 +39,32 @@ nav.tabs button{flex:1;background:none;border:none;display:flex;flex-direction:c
 nav.tabs button svg{width:23px;height:23px}
 nav.tabs button.on{color:var(--navy)}
 
-/* ---------- Nút Thêm (FAB) — nổi góc phải, trên thanh nav ----------
-   Tách khỏi nav vì đây là hành động, không phải mục điều hướng. */
-.fab{
-  position:fixed;
-  right:16px;
-  bottom:calc(74px + env(safe-area-inset-bottom));  /* ngay trên thanh nav */
-  z-index:26;
-  display:none;                                    /* .authed mới hiện */
+/* ---------- Nút Thêm — nằm trong header ----------
+   Đặt ở header thay vì nổi tự do: FAB nổi luôn che mất nội dung
+   khi cuộn, đúng lỗi đã gặp ở Ver 1 và Ver 3.5. */
+.btn-add{
+  display:none;                       /* .authed mới hiện */
   align-items:center;
-  gap:8px;
-  padding:0 20px 0 16px;
-  height:54px;
+  gap:6px;
+  flex-shrink:0;
+  height:34px;
+  padding:0 14px 0 11px;
   border:none;
   border-radius:100px;
   background:linear-gradient(135deg,var(--gold),#b5852c);
   color:#fff;
   font-family:inherit;
-  font-size:15px;
+  font-size:13.5px;
   font-weight:700;
   cursor:pointer;
-  box-shadow:0 10px 26px -8px rgba(199,154,59,.85), 0 2px 6px rgba(0,0,0,.18);
-  transition:transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .16s;
+  box-shadow:0 4px 12px -4px rgba(199,154,59,.75);
+  transition:transform .15s, box-shadow .15s;
 }
-body.authed .fab{display:inline-flex}
-.fab:active{transform:scale(.94)}
-.fab .plus{font-size:27px;font-weight:400;line-height:1;margin-top:-2px}
-.fab-lbl{white-space:nowrap}
+body.authed .btn-add{display:inline-flex}
+.btn-add:hover{box-shadow:0 6px 16px -4px rgba(199,154,59,.9)}
+.btn-add:active{transform:scale(.94)}
+.btn-add .plus{font-size:19px;font-weight:400;line-height:1;margin-top:-1px}
+.btn-add .lbl{white-space:nowrap}
 
 /* ============================================================
    Ẩn/hiện theo trạng thái đăng nhập — ĐẶT CUỐI FILE có chủ đích
@@ -83,13 +80,3 @@ nav.tabs{display:none}
 body.authed #login{display:none}
 body.authed #app{display:flex}
 body.authed nav.tabs{display:flex}
-
-/* Màn hình hẹp: rút gọn header để pill năm có chỗ.
-   Ẩn chữ "Thu nhập" (chỉ giữ chấm vàng) và bỏ chữ trên nút Thoát. */
-@media (max-width:479px){
-  header.bar{padding:14px 14px 12px;gap:8px}
-  header.bar .ttl{font-size:0}          /* giấu chữ, giữ .dot */
-  header.bar .ttl .dot{margin:0}
-  .years{margin:0 4px}
-  .usr{gap:7px}
-}
