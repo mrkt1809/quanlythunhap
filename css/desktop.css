@@ -108,6 +108,8 @@
   /* ---------- Header + vùng nội dung ---------- */
   header.bar{padding:26px 34px 18px}
   header.bar .ttl{display:none}      /* tên app đã có ở sidebar */
+  /* .ttl ẩn nên pill năm căn sát trái, không cần lề trái nữa */
+  .years{margin-left:0}
   .usr{margin-left:auto}
 
   .sheet{

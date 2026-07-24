@@ -2,10 +2,19 @@
    components.css — Các khối UI tái sử dụng
    ============================================================ */
 
-/* ---------- Year pills ---------- */
-.years{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-.year-pill{border:1px solid var(--line);background:var(--paper2);padding:8px 16px;border-radius:100px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;transition:.15s}
-.year-pill.on{background:var(--navy);color:var(--paper2);border-color:var(--navy)}
+/* ---------- Year pills (nằm trên header nền navy) ----------
+   flex-wrap:nowrap + cuộn ngang: nếu để xuống hàng thì với 3-4 năm
+   header sẽ cao gấp đôi trên điện thoại. */
+.years{display:flex;gap:6px;flex-wrap:nowrap;flex:1;margin:0 10px;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.years::-webkit-scrollbar{display:none}
+.year-pill{flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);
+  padding:6px 14px;border-radius:100px;font-weight:600;font-size:13px;
+  color:#c3cfe0;cursor:pointer;transition:.15s;font-family:inherit}
+.year-pill:hover{background:rgba(255,255,255,.16);color:var(--paper)}
+.year-pill.on{background:var(--gold);color:#fff;border-color:var(--gold);
+  box-shadow:0 4px 12px -4px rgba(199,154,59,.7)}
 
 /* ---------- Hero tổng thu nhập ---------- */
 .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--paper2);border-radius:var(--r);padding:22px;position:relative;overflow:hidden;box-shadow:var(--shadow)}

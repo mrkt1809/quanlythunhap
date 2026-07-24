@@ -55,3 +55,13 @@ nav.tabs{display:none}
 body.authed #login{display:none}
 body.authed #app{display:flex}
 body.authed nav.tabs{display:flex}
+
+/* Màn hình hẹp: rút gọn header để pill năm có chỗ.
+   Ẩn chữ "Thu nhập" (chỉ giữ chấm vàng) và bỏ chữ trên nút Thoát. */
+@media (max-width:479px){
+  header.bar{padding:14px 14px 12px;gap:8px}
+  header.bar .ttl{font-size:0}          /* giấu chữ, giữ .dot */
+  header.bar .ttl .dot{margin:0}
+  .years{margin:0 4px}
+  .usr{gap:7px}
+}
