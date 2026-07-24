@@ -23,7 +23,11 @@ header.bar .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);bo
 .usr img{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.25)}
 .usr button{background:rgba(255,255,255,.12);color:#cdd8e8;border:none;font-size:12px;padding:7px 12px;border-radius:100px;cursor:pointer}
 
-.sheet{background:var(--paper);border-radius:26px 26px 0 0;flex:1;padding:22px 18px 100px;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);margin-top:4px}
+/* Đệm đáy 150px: đủ cho thanh nav (~66px) CỘNG nút FAB nổi phía trên nó
+   (cao 54px, cách đáy 74px → chiếm tới ~128px).
+   Đây chính là lỗi của bản FAB cũ ở Ver 1: thiếu đệm nên nút che mất
+   bản ghi cuối cùng trong danh sách. */
+.sheet{background:var(--paper);border-radius:26px 26px 0 0;flex:1;padding:22px 18px 150px;box-shadow:0 -20px 50px -20px rgba(0,0,0,.4);margin-top:4px}
 
 /* ---------- Views ---------- */
 .view{display:none;animation:rise .4s cubic-bezier(.2,.8,.2,1)}
@@ -36,10 +40,34 @@ nav.tabs .wrapn{max-width:760px;margin:0 auto;width:100%;display:flex}
 nav.tabs button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer}
 nav.tabs button svg{width:23px;height:23px}
 nav.tabs button.on{color:var(--navy)}
-nav.tabs button.addbtn{flex:0 0 auto;margin-top:-22px}
-nav.tabs button.addbtn .plus{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--gold),#b5852c);color:#fff;font-size:30px;font-weight:400;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px -5px rgba(199,154,59,.7);transition:transform .15s;line-height:1}
-nav.tabs button.addbtn:active .plus{transform:scale(.9) rotate(90deg)}
-nav.tabs button.addbtn .addlbl{color:var(--gold);margin-top:3px}
+
+/* ---------- Nút Thêm (FAB) — nổi góc phải, trên thanh nav ----------
+   Tách khỏi nav vì đây là hành động, không phải mục điều hướng. */
+.fab{
+  position:fixed;
+  right:16px;
+  bottom:calc(74px + env(safe-area-inset-bottom));  /* ngay trên thanh nav */
+  z-index:26;
+  display:none;                                    /* .authed mới hiện */
+  align-items:center;
+  gap:8px;
+  padding:0 20px 0 16px;
+  height:54px;
+  border:none;
+  border-radius:100px;
+  background:linear-gradient(135deg,var(--gold),#b5852c);
+  color:#fff;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 10px 26px -8px rgba(199,154,59,.85), 0 2px 6px rgba(0,0,0,.18);
+  transition:transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .16s;
+}
+body.authed .fab{display:inline-flex}
+.fab:active{transform:scale(.94)}
+.fab .plus{font-size:27px;font-weight:400;line-height:1;margin-top:-2px}
+.fab-lbl{white-space:nowrap}
 
 /* ============================================================
    Ẩn/hiện theo trạng thái đăng nhập — ĐẶT CUỐI FILE có chủ đích

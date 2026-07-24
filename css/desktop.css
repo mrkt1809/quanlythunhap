@@ -48,6 +48,8 @@
     flex-direction:column;
     gap:6px;
     width:100%;
+    /* chừa chỗ cho .fab (fixed, cao 46px, đặt ở top:76px) */
+    padding-top:60px;
   }
 
   /* nhãn thương hiệu trong sidebar */
@@ -81,29 +83,24 @@
   }
   nav.tabs button svg{width:20px;height:20px;flex-shrink:0}
 
-  /* nút Thêm → chữ nhật vàng, nằm ngay dưới brand */
-  nav.tabs button.addbtn{
-    order:-1;                 /* đẩy lên trên 2 nút điều hướng */
-    margin:0 0 14px;
-    padding:0;
-    background:none;
-  }
-  nav.tabs button.addbtn .plus{
-    width:100%;height:auto;
+  /* Nút Thêm trên desktop: đặt vào ĐÚNG vị trí trong sidebar, dưới brand.
+     FAB nằm ngoài <nav> nên dùng fixed + toạ độ khớp với padding sidebar
+     (padding-left 24px, padding-right 18px, brand cao ~46px). */
+  .fab{
+    right:auto;
+    left:24px;
+    top:76px;
+    bottom:auto;
+    width:206px;                /* 248 - 24 - 18 */
+    height:46px;
+    padding:0 16px;
     border-radius:12px;
-    padding:13px 16px;
-    font-size:19px;font-weight:400;
-    gap:10px;
     justify-content:flex-start;
+    font-size:14.5px;
     box-shadow:0 6px 16px -6px rgba(199,154,59,.6);
   }
-  nav.tabs button.addbtn .plus::after{
-    content:"Thêm giao dịch";
-    font-size:14.5px;font-weight:700;
-    line-height:1;
-  }
-  nav.tabs button.addbtn:active .plus{transform:scale(.98) rotate(0)}
-  nav.tabs button.addbtn .addlbl{display:none}   /* nhãn đã nằm trong .plus */
+  .fab:active{transform:scale(.98)}
+  .fab .plus{font-size:20px;margin-top:-1px}
 
   /* ---------- Header + vùng nội dung ---------- */
   header.bar{padding:26px 34px 18px}
