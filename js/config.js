@@ -2,16 +2,16 @@
    config.js — Cấu hình Firebase + định nghĩa nhóm thu nhập
    ============================================================ */
 
-export const firebaseConfig = {
-  apiKey: "AIzaSyCo1lM5JvWqeYrURQ_sQQ54FixnsFfoxYI",
-  authDomain: "thu-nhap-efad5.firebaseapp.com",
-  projectId: "thu-nhap-efad5",
-  storageBucket: "thu-nhap-efad5.firebasestorage.app",
-  messagingSenderId: "969160788754",
-  appId: "1:969160788754:web:b5889107919794f86941cb"
-};
+/* Cấu hình Supabase.
+   Hai giá trị này lấy ở: Supabase → Project Settings → API
+   - SUPABASE_URL: mục "Project URL"
+   - SUPABASE_ANON_KEY: mục "Project API keys" → "anon public"
+   Khoá anon công khai được (giống firebaseConfig trước đây) — bảo vệ thật
+   nằm ở Row Level Security, không phải ở việc giấu khoá này. */
+export const SUPABASE_URL      = "https://tmuyefhixhgbjjoefjkq.supabase.co";
+export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtdXllZmhpeGhnYmpqb2VmamtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNjMyMTUsImV4cCI6MjEwMDczOTIxNX0.bVMeTrD-dl-rzld-T2klECHU7xONWevL_44hPacXYwg";
 
-export const CONFIGURED = !firebaseConfig.apiKey.startsWith("PASTE");
+export const CONFIGURED = !SUPABASE_URL.startsWith("PASTE");
 
 /* Luật phân loại — port từ bản Excel.
    Thứ tự QUAN TRỌNG: khớp từ trên xuống, cái cụ thể đặt trước cái tổng quát. */

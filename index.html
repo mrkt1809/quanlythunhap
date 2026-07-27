@@ -25,14 +25,20 @@
   <div id="login">
     <div class="badge">Quản lý thu nhập</div>
     <h1>Theo dõi<br>nguồn thu</h1>
-    <p>Đồng bộ tức thì giữa điện thoại và máy tính. Dữ liệu của bạn được bảo vệ bằng tài khoản Google.</p>
-    <button class="btn-google" id="btnLogin">
-      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.5 29.5 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.3-.3-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.5 29.5 4.5 24 4.5c-7.7 0-14.3 4.4-17.7 10.2z"/><path fill="#4CAF50" d="M24 43.5c5.4 0 10.3-2.1 14-5.4l-6.5-5.5c-2 1.5-4.6 2.4-7.5 2.4-5.2 0-9.6-3.3-11.2-8l-6.5 5C9.8 39.1 16.3 43.5 24 43.5z"/><path fill="#1976D2" d="M43.6 20.5H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.4l6.5 5.5c-.5.4 7-5.1 7-14.9 0-1.2-.1-2.3-.3-3.5z"/></svg>
-      Đăng nhập với Google
-    </button>
+    <p>Đồng bộ tức thì giữa điện thoại và máy tính.</p>
+
+    <div class="login-form">
+      <input id="email" type="email" inputmode="email" autocomplete="username"
+             placeholder="Email" class="login-in">
+      <input id="password" type="password" autocomplete="current-password"
+             placeholder="Mật khẩu" class="login-in">
+      <button class="btn-login" id="btnLogin">Đăng nhập</button>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+
     <div class="cfg-warn" id="cfgWarn" style="display:none">
-      <b>⚙️ Chưa cấu hình Firebase.</b><br>
-      Mở file <b>js/config.js</b>, dán <b>firebaseConfig</b> của project bạn vào. App sẽ chạy ngay sau đó.
+      <b>⚙️ Chưa cấu hình Supabase.</b><br>
+      Mở file <b>js/config.js</b>, dán <b>SUPABASE_URL</b> và <b>SUPABASE_ANON_KEY</b> vào. App sẽ chạy ngay sau đó.
     </div>
   </div>
 
@@ -46,7 +52,7 @@
       <button class="btn-add" id="btnAdd" aria-label="Thêm khoản thu">
         <span class="plus">+</span><span class="lbl">Thêm</span>
       </button>
-      <div class="usr"><img id="uimg" alt=""><button id="btnLogout">Thoát</button></div>
+      <div class="usr"><button id="btnLogout">Thoát</button></div>
     </header>
     <div class="sheet">
 

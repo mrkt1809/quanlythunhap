@@ -48,10 +48,33 @@ bindChart(
   mo => { setMonthFilter(mo); go('list'); }
 );
 
-$('btnLogin').addEventListener('click', async () => {
-  try{ await store.login(); }
-  catch(e){ toast('Đăng nhập lỗi: ' + e.code); }
-});
+async function doLogin(){
+  const email = $('email').value.trim();
+  const pw    = $('password').value;
+  const err   = $('loginErr');
+  err.textContent = '';
+  if(!email || !pw){ err.textContent = 'Nhập email và mật khẩu'; return; }
+
+  const btn = $('btnLogin');
+  btn.disabled = true; btn.textContent = 'Đang đăng nhập…';
+  try{
+    await store.login(email, pw);
+  }catch(e){
+    /* Supabase trả "Invalid login credentials" khi sai HOẶC chưa có tài khoản.
+       App chỉ mình bạn dùng nên thử tạo tài khoản luôn nếu đăng nhập thất bại. */
+    try{
+      await store.signup(email, pw);
+      await store.login(email, pw);
+    }catch(e2){
+      err.textContent = 'Lỗi: ' + (e2.message || e.message);
+    }
+  }finally{
+    btn.disabled = false; btn.textContent = 'Đăng nhập';
+  }
+}
+
+$('btnLogin').addEventListener('click', doLogin);
+$('password').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
 $('btnLogout').addEventListener('click', () => store.logout());
 $('btnAdd').addEventListener('click', openAdd);
 
@@ -72,7 +95,7 @@ $('expRpt').addEventListener('click', () => {
 /* phản ứng khi đăng nhập / đăng xuất */
 store.onAuth(u => {
   if(u && u.error){ toast('Lỗi đọc dữ liệu: ' + u.error); return; }
-  if(u){ $('uimg').src = u.photoURL || ''; showApp(true); }
+  if(u){ $('password').value = ''; showApp(true); }
   else  { showApp(false); }
 });
 

@@ -9,8 +9,18 @@
 #login .badge{font-family:'Fraunces';font-size:13px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:18px}
 #login h1{font-family:'Fraunces';font-weight:600;font-size:clamp(34px,9vw,52px);line-height:1.02;margin-bottom:14px}
 #login p{color:#b9c6da;max-width:360px;margin:0 auto 32px;line-height:1.6;font-size:15px}
-.btn-google{display:inline-flex;align-items:center;gap:12px;background:var(--paper2);color:var(--ink);border:none;padding:15px 26px;border-radius:100px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s}
-.btn-google:active{transform:scale(.96)}
+/* ---------- Form đăng nhập (email + mật khẩu) ---------- */
+.login-form{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+.login-in{width:100%;background:var(--paper2);border:1.5px solid rgba(255,255,255,.15);
+  border-radius:13px;padding:15px 16px;font-size:16px;font-family:inherit;color:var(--ink);
+  transition:border-color .15s}
+.login-in:focus{outline:none;border-color:var(--gold)}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--gold),#b5852c);color:#fff;
+  border:none;padding:15px;border-radius:13px;font-size:16px;font-weight:700;font-family:inherit;
+  cursor:pointer;box-shadow:var(--shadow);transition:transform .15s;margin-top:4px}
+.btn-login:active{transform:scale(.97)}
+.btn-login:disabled{opacity:.6;cursor:default}
+.login-err{color:#ffb4ba;font-size:13px;min-height:18px;text-align:center;line-height:1.4}
 .cfg-warn{margin-top:28px;background:rgba(196,88,95,.15);border:1px solid rgba(196,88,95,.4);color:#ffd9dc;padding:14px 16px;border-radius:14px;max-width:420px;font-size:13px;line-height:1.5;text-align:left}
 .cfg-warn b{color:#fff}
 

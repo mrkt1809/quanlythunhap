@@ -1,31 +1,36 @@
 /* ============================================================
-   store.js — Nơi duy nhất giữ dữ liệu + kết nối Firebase
-   Các module UI chỉ cần subscribe(), không tự đọc Firestore.
+   store.js — Nơi duy nhất giữ dữ liệu + kết nối Supabase
+   Các module UI chỉ cần subscribe(), không tự đọc database.
+
+   ⚠️ Giữ NGUYÊN "hình dạng" API như bản Firebase cũ:
+   getTxs, getYear, isSaving, subscribe, onAuth, setYear,
+   init, login, logout, saveTx, removeTx.
+   Nhờ vậy các file UI không phải sửa gì khi đổi nền database.
    ============================================================ */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, CONFIGURED } from "./config.js";
+import { createClient }
+  from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_ANON_KEY, CONFIGURED } from "./config.js";
+
+const TABLE = "transactions";
 
 /* ---------- state nội bộ ---------- */
-let db = null, auth = null, col = null, unsub = null;
+let sb = null;          // client Supabase
+let channel = null;     // kênh realtime
+let uid = null;         // id người dùng đang đăng nhập
 let txs = [];
 let selYear = null;
 let saving = false;
 
-const dataSubs = [];   // gọi khi txs / selYear đổi
-const authSubs = [];   // gọi khi đăng nhập / đăng xuất
+const dataSubs = [];
+const authSubs = [];
 
 /* ---------- đọc state ---------- */
-export const getTxs     = () => txs;
-export const getYear    = () => selYear;
-export const isSaving   = () => saving;
-export const isReady    = () => CONFIGURED;
+export const getTxs   = () => txs;
+export const getYear  = () => selYear;
+export const isSaving = () => saving;
+export const isReady  = () => CONFIGURED;
 
 /* ---------- đăng ký lắng nghe ---------- */
-/* subscribe(fn): fn được gọi ngay 1 lần với dữ liệu hiện tại, rồi mỗi khi có thay đổi */
 export function subscribe(fn){
   dataSubs.push(fn);
   fn(txs, selYear);
@@ -39,51 +44,124 @@ const notifyAuth = u  => authSubs.forEach(fn => fn(u));
 /* ---------- chọn năm ---------- */
 export function setYear(y){ selYear = y; notify(); }
 
+/* ---------- ánh xạ hàng DB ↔ object app ----------
+   DB dùng cột "group" (từ khoá SQL) + created_at.
+   App quen dùng {id, date, amount, note, group}. Chuyển qua lại ở đây
+   để phần còn lại của app không phải biết gì về cấu trúc bảng. */
+const rowToTx = r => ({
+  id: r.id, date: r.date, amount: r.amount,
+  note: r.note || "", group: r.group, type: r.type
+});
+
 /* ---------- khởi động ---------- */
 export function init(){
   if(!CONFIGURED) return false;
-  const app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db   = getFirestore(app);
-  onAuthStateChanged(auth, u => u ? handleLogin(u) : handleLogout());
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* theo dõi đăng nhập/đăng xuất — thay cho onAuthStateChanged của Firebase */
+  sb.auth.onAuthStateChange((_event, session) => {
+    const user = session?.user || null;
+    if(user && user.id !== uid) handleLogin(user);
+    else if(!user && uid)       handleLogout();
+  });
+
+  /* lấy phiên hiện có (đã đăng nhập từ lần trước) */
+  sb.auth.getSession().then(({ data }) => {
+    if(data.session?.user) handleLogin(data.session.user);
+    else notifyAuth(null);
+  });
   return true;
 }
 
-export const login  = () => signInWithPopup(auth, new GoogleAuthProvider());
-export const logout = () => signOut(auth);
+/* ---------- đăng nhập / đăng xuất ----------
+   Dùng email + mật khẩu. Trả về lỗi cho UI hiển thị, không tự ném. */
+export async function login(email, password){
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error) throw error;
+}
+export async function signup(email, password){
+  const { error } = await sb.auth.signUp({ email, password });
+  if(error) throw error;
+}
+export const logout = () => sb.auth.signOut();
 
-function handleLogin(u){
-  col = collection(db, "users", u.uid, "income");
-  if(unsub) unsub();
-  unsub = onSnapshot(query(col), snap => {
-    txs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    txs.sort((a,b) => (a.date < b.date ? 1 : -1));   // mới nhất trước
-    if(!selYear){
-      selYear = txs.length ? new Date(txs[0].date).getFullYear() : new Date().getFullYear();
-    }
-    notify();
-  }, err => notifyAuth({ error: err.code }));
-  notifyAuth(u);
+/* ---------- nạp dữ liệu + realtime ---------- */
+async function handleLogin(user){
+  uid = user.id;
+
+  await loadAll();          // tải toàn bộ 1 lần
+  subscribeRealtime();      // rồi lắng nghe thay đổi để đồng bộ đa thiết bị
+
+  notifyAuth(user);
+}
+
+async function loadAll(){
+  const { data, error } = await sb
+    .from(TABLE)
+    .select("*")
+    .order("date", { ascending: false });
+
+  if(error){ notifyAuth({ error: error.message }); return; }
+
+  txs = data.map(rowToTx);
+  if(!selYear){
+    selYear = txs.length ? new Date(txs[0].date).getFullYear() : new Date().getFullYear();
+  }
+  notify();
+}
+
+/* Realtime: nghe INSERT/UPDATE/DELETE trên bảng, chỉ của mình (RLS lọc sẵn).
+   Cách đơn giản và chắc chắn: có bất kỳ thay đổi nào thì tải lại toàn bộ.
+   Dữ liệu nhỏ (vài trăm dòng) nên tải lại không tốn gì, mà tránh được
+   mọi rắc rối gộp/sắp xếp thủ công. */
+function subscribeRealtime(){
+  if(channel) sb.removeChannel(channel);
+  channel = sb
+    .channel("tx-changes")
+    .on("postgres_changes",
+        { event: "*", schema: "public", table: TABLE },
+        () => loadAll())
+    .subscribe();
 }
 
 function handleLogout(){
-  if(unsub){ unsub(); unsub = null; }
-  txs = []; selYear = null; col = null;
+  if(channel){ sb.removeChannel(channel); channel = null; }
+  uid = null; txs = []; selYear = null;
   notifyAuth(null);
 }
 
 /* ---------- ghi dữ liệu ----------
-   Trả về { ok:true } hoặc { ok:false, msg }. UI tự quyết hiển thị toast gì. */
+   Giữ nguyên chữ ký saveTx(data, editId) / removeTx(id) như bản Firebase.
+   data = { amount, date, note, group, type } (type mặc định 'in' nếu thiếu).
+   Trả về { ok:true } hoặc { ok:false, msg }.
+
+   Sau khi ghi, gọi loadAll() ngay để UI cập nhật tức thì, không đợi realtime
+   (realtime có độ trễ nhỏ; tải lại luôn cho cảm giác mượt). */
 export async function saveTx(data, editId){
   if(saving) return { ok:false, msg:'Đang xử lý…' };
   saving = true;
   try{
-    if(editId) await updateDoc(doc(col, editId), data);
-    else       await addDoc(col, data);
+    const row = {
+      date:   data.date,
+      amount: data.amount,
+      note:   data.note || "",
+      group:  data.group,
+      type:   data.type || "in",
+      user_id: uid
+    };
+    let error;
+    if(editId){
+      ({ error } = await sb.from(TABLE).update(row).eq("id", editId));
+    }else{
+      ({ error } = await sb.from(TABLE).insert(row));
+    }
+    if(error) return { ok:false, msg: error.message };
+
     selYear = new Date(data.date).getFullYear();
+    await loadAll();
     return { ok:true };
   }catch(e){
-    return { ok:false, msg: e.code || e.message };
+    return { ok:false, msg: e.message };
   }finally{
     saving = false;
   }
@@ -93,10 +171,12 @@ export async function removeTx(id){
   if(saving) return { ok:false, msg:'Đang xử lý…' };
   saving = true;
   try{
-    await deleteDoc(doc(col, id));
+    const { error } = await sb.from(TABLE).delete().eq("id", id);
+    if(error) return { ok:false, msg: error.message };
+    await loadAll();
     return { ok:true };
   }catch(e){
-    return { ok:false, msg: e.code || e.message };
+    return { ok:false, msg: e.message };
   }finally{
     saving = false;
   }
