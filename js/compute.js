@@ -9,6 +9,29 @@ import { classify } from "./classify.js";
 /* Nhóm của 1 giao dịch: ưu tiên nhóm đã lưu, không có thì đoán từ ghi chú */
 export const groupOf = t => t.group || classify(t.note);
 
+/* Loại của giao dịch, mặc định 'in' cho dữ liệu cũ chưa có type */
+export const typeOf = t => t.type || 'in';
+
+/* Lọc theo loại. Đây là "cửa" để mọi màn hình chọn xem thu/chi/hỗ trợ.
+   Các hàm tính bên dưới không cần biết type — chúng tính trên danh sách
+   đã được lọc sẵn. Nhờ vậy toàn bộ logic cũ giữ nguyên. */
+export const ofType = (txs, type) => txs.filter(t => typeOf(t) === type);
+
+/* Tổng theo từng loại trong một năm — cho thẻ Thu/Chi/Còn lại */
+export function totalsByType(txs, y){
+  const inYear = yearTx(txs, y);
+  const sum = type => inYear.filter(t => typeOf(t) === type).reduce((s,t) => s + t.amount, 0);
+  const income  = sum('in');
+  const expense = sum('out');
+  const transfer = sum('transfer');
+  return {
+    income, expense, transfer,
+    /* Dòng tiền ròng = thu thật + tiền hỗ trợ nhận − chi thật.
+       Transfer tính vào vì nó thật sự làm túi tiền dương hơn. */
+    net: income + transfer - expense
+  };
+}
+
 /* Danh sách các năm có dữ liệu, mới nhất trước */
 export function years(txs){
   return [...new Set(txs.map(t => new Date(t.date).getFullYear()))].sort((a,b) => b-a);

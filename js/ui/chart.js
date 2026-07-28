@@ -2,7 +2,7 @@
    ui/chart.js — Biểu đồ cột xếp chồng theo tháng
    Ver 3.2: thêm trục Y, tooltip khi rê/chạm, bật-tắt nhóm ở legend.
    ============================================================ */
-import { groupStyle } from "../config.js";
+import { groupStyle, groupStyleFor } from "../config.js";
 import { chartData } from "../compute.js";
 import { fmtVND, fmtShort, esc } from "../format.js";
 
@@ -13,12 +13,12 @@ const hidden = new Set();
 export const getHidden = () => hidden;
 
 /* Ngữ cảnh lần vẽ gần nhất, để tooltip tra cứu mà không tính lại */
-let ctx = { byMG:[], cur:[], prev:[], year:0, hasCompare:false };
+let ctx = { byMG:[], cur:[], prev:[], year:0, hasCompare:false, type:'in' };
 
 /* ---------------- vẽ biểu đồ ---------------- */
-export function renderChart(txs, year){
+export function renderChart(txs, year, type = 'in'){
   const d = chartData(txs, year, hidden);
-  ctx = { byMG:d.byMG, cur:d.cur, prev:d.prev, year, hasCompare:d.hasCompare };
+  ctx = { byMG:d.byMG, cur:d.cur, prev:d.prev, year, hasCompare:d.hasCompare, type };
 
   $('cmpHint').textContent = d.hasCompare ? `mờ = ${year-1}` : '';
 
@@ -35,7 +35,7 @@ export function renderChart(txs, year){
     const segs = Object.entries(d.byMG[i])
       .sort((a,b) => b[1] - a[1])
       .map(([g, val]) =>
-        `<div class="seg" style="height:${val / Math.max(v,1) * 100}%;background:${groupStyle(g).c}"></div>`
+        `<div class="seg" style="height:${val / Math.max(v,1) * 100}%;background:${groupStyleFor(type, g).c}"></div>`
       ).join('');
 
     const ghost = d.prev[i] > 0
@@ -53,12 +53,12 @@ export function renderChart(txs, year){
 }
 
 /* ---------------- legend bật/tắt ---------------- */
-export function renderLegend(sorted){
+export function renderLegend(sorted, type = 'in'){
   $('barLegend').innerHTML = sorted
     .map(([g]) => {
       const off = hidden.has(g);
       return `<button class="lg${off ? ' off' : ''}" data-g="${esc(g)}" aria-pressed="${!off}">
-        <i style="background:${groupStyle(g).c}"></i>${esc(g)}
+        <i style="background:${groupStyleFor(type, g).c}"></i>${esc(g)}
       </button>`;
     }).join('');
 }
@@ -76,7 +76,7 @@ function tipHTML(i){
     .sort((a,b) => b[1] - a[1])
     .map(([g, v]) =>
       `<div class="tt-r">
-         <span class="tt-n"><i style="background:${groupStyle(g).c}"></i>${esc(g)}</span>
+         <span class="tt-n"><i style="background:${groupStyleFor(ctx.type, g).c}"></i>${esc(g)}</span>
          <span class="tt-v">${fmtVND(v)}</span>
        </div>`).join('');
 

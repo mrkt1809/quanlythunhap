@@ -3,7 +3,7 @@
    ============================================================ */
 import { CONFIGURED } from "./config.js";
 import * as store from "./store.js";
-import { renderDash, refreshChart, bindYears, bindChart } from "./ui/dash.js";
+import { renderDash, refreshChart, bindYears, bindModeTabs, bindChart } from "./ui/dash.js";
 import { renderList, bindList, setMonthFilter, clearMonthFilter } from "./ui/list.js";
 import { renderReport } from "./ui/report.js";
 import { openAdd, bindModal } from "./ui/modal.js";
@@ -37,6 +37,7 @@ if(!CONFIGURED){
 
 /* gắn sự kiện tĩnh (chỉ 1 lần, không phụ thuộc dữ liệu) */
 bindYears();
+bindModeTabs();
 bindList();
 bindModal();
 

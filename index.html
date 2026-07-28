@@ -58,14 +58,16 @@
 
       <!-- DASHBOARD -->
       <section class="view on" id="v-dash">
+        <!-- công tắc Thu / Chi / Thu–Chi -->
+        <div class="mode-tabs" id="modeTabs"></div>
         <div class="hero">
-          <div class="lab">Tổng thu nhập năm <span id="hYear"></span></div>
+          <div class="lab"><span id="heroLabel">Tổng thu nhập năm</span> <span id="hYear"></span></div>
           <div class="big" id="hTotal">—</div>
           <div class="sub" id="hCount"></div>
           <div id="hYoy"></div>
         </div>
         <div class="kgrid">
-          <div class="kpi"><div class="l">TB mỗi tháng</div><div class="v" id="kAvg">—</div><div class="m" id="kAvgM">trên số tháng có thu</div></div>
+          <div class="kpi"><div class="l">TB mỗi tháng</div><div class="v" id="kAvg">—</div><div class="m" id="kAvgM"></div></div>
           <div class="kpi"><div class="l">Tháng cao nhất</div><div class="v" id="kMax">—</div><div class="m" id="kMaxM"></div></div>
           <!-- 2 ô dưới chỉ hiện từ 1024px trở lên (xem desktop.css) -->
           <div class="kpi only-desk"><div class="l">Số giao dịch</div><div class="v" id="kCount">—</div><div class="m" id="kCountM"></div></div>
@@ -75,7 +77,7 @@
         <!-- Trên desktop: biểu đồ 2 phần · cơ cấu 1 phần. Mobile: xếp dọc -->
         <div class="dgrid">
           <div class="card">
-            <h3>Thu nhập theo tháng <span class="hint" id="cmpHint"></span></h3>
+            <h3><span id="chartTitle">Thu nhập theo tháng</span> <span class="hint" id="cmpHint"></span></h3>
             <!-- chartBox: khung định vị cho tooltip · yaxis: mốc trục Y · grid: đường kẻ ngang -->
             <div class="chartbox" id="chartBox">
               <div class="yaxis" id="yaxis"></div>
@@ -88,7 +90,7 @@
             <div class="legend" id="barLegend"></div>
           </div>
           <div class="card">
-            <h3>Cơ cấu nguồn thu</h3>
+            <h3 id="catTitle">Cơ cấu nguồn thu</h3>
             <div class="cat" id="cat"></div>
           </div>
         </div>

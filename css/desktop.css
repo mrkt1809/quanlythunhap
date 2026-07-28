@@ -6,6 +6,9 @@
 
 /* Phần tử chỉ dành cho desktop — mặc định ẩn */
 .only-desk{display:none}
+/* Chế độ Thu–Chi: 4 KPI (Thu/Chi/Hỗ trợ/Còn lại) đều quan trọng,
+   nhất là "Còn lại" — phải hiện cả trên mobile, không ẩn như chế độ Thu. */
+body.mode-net .kpi.only-desk{display:block}
 
 /* Trên mobile, .dgrid chỉ là khối trống, các .card bên trong
    tự có margin-top như cũ → không đổi gì cả. */
