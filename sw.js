@@ -3,7 +3,7 @@
    ⚠️ Mỗi lần deploy có đổi file, PHẢI tăng CACHE lên số mới,
    nếu không máy cũ sẽ dùng lại bản cache cũ.
    ============================================================ */
-const CACHE = 'thunhap-v42a';
+const CACHE = 'thunhap-v42b';
 
 const ASSETS = [
   './',

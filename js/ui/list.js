@@ -3,8 +3,8 @@
    Dùng event delegation: gắn listener 1 LẦN lên #list,
    không cần bindSwipe() lại sau mỗi lần render.
    ============================================================ */
-import { groupStyle } from "../config.js";
-import { yearTx, groupOf } from "../compute.js";
+import { groupStyle, groupStyleFor, typeInfo } from "../config.js";
+import { yearTx, groupOf, typeOf } from "../compute.js";
 import { stripVN } from "../classify.js";
 import { fmtVND, fmtDate, esc } from "../format.js";
 import { getTxs, getYear, removeTx, isSaving } from "../store.js";
@@ -35,10 +35,16 @@ export function renderList(){
   if(moFilter === null){
     chip.style.display = 'none';
   }else{
-    const sum = rows.reduce((s,t) => s + t.amount, 0);
+    /* Tổng gộp mọi loại sẽ sai (cộng cả chi vào như thu).
+       Hiện dòng tiền ròng = thu + hỗ trợ − chi cho đúng nghĩa. */
+    const net = rows.reduce((s,t) => {
+      const ty = typeOf(t);
+      return s + (ty === 'out' ? -t.amount : t.amount);
+    }, 0);
+    const netStr = (net < 0 ? '−' : '+') + fmtVND(Math.abs(net));
     chip.style.display = 'flex';
     chip.innerHTML = `<span class="ch-t">Tháng ${moFilter+1}/${year}</span>
-      <span class="ch-s">${rows.length} khoản · ${fmtVND(sum)}</span>
+      <span class="ch-s">${rows.length} khoản · ${netStr}</span>
       <button class="ch-x" id="moChipX" aria-label="Bỏ lọc tháng">×</button>`;
   }
 
@@ -50,18 +56,24 @@ export function renderList(){
   }
 
   el.innerHTML = rows.map(t => {
-    const g = groupOf(t), G = groupStyle(g);
+    const type = typeOf(t);
+    const g = groupOf(t), G = groupStyleFor(type, g);
+    /* Dấu + màu theo loại để liếc là biết Thu/Chi/Hỗ trợ:
+       Thu +  (xanh) · Chi −  (đỏ) · Hỗ trợ ↔ (vàng) */
+    const sign  = type === 'out' ? '−' : (type === 'transfer' ? '↔ ' : '+');
+    /* nhãn chữ ngắn để phân biệt kể cả khi không nhìn màu */
+    const tag   = type === 'out' ? 'CHI' : (type === 'transfer' ? 'HỖ TRỢ' : 'THU');
     return `<div class="tx-wrap">
       <div class="del-bg" data-del="${t.id}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Xoá
       </div>
-      <div class="tx" data-id="${t.id}">
+      <div class="tx tx-${type}" data-id="${t.id}">
         <div class="tag" style="background:${G.c}">${G.e}</div>
         <div class="mid">
           <div class="n">${esc(t.note || '(không ghi chú)')}</div>
-          <div class="d">${fmtDate(t.date)} · ${g}</div>
+          <div class="d"><span class="tbadge tb-${type}">${tag}</span>${fmtDate(t.date)} · ${g}</div>
         </div>
-        <div class="amt">+${fmtVND(t.amount)}</div>
+        <div class="amt amt-${type}">${sign}${fmtVND(t.amount)}</div>
       </div>
     </div>`;
   }).join('');
