@@ -8,8 +8,8 @@
    - SUPABASE_ANON_KEY: mục "Project API keys" → "anon public"
    Khoá anon công khai được (giống firebaseConfig trước đây) — bảo vệ thật
    nằm ở Row Level Security, không phải ở việc giấu khoá này. */
-export const SUPABASE_URL      = "PASTE_SUPABASE_URL";
-export const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY";
+export const SUPABASE_URL      = "https://tmuyefhixhgbjjoefjkq.supabase.co";
+export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtdXllZmhpeGhnYmpqb2VmamtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNjMyMTUsImV4cCI6MjEwMDczOTIxNX0.bVMeTrD-dl-rzld-T2klECHU7xONWevL_44hPacXYwg";
 
 export const CONFIGURED = !SUPABASE_URL.startsWith("PASTE");
 
