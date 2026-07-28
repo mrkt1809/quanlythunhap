@@ -1,8 +1,9 @@
 /* ============================================================
    export.js — Xuất dữ liệu ra file CSV
    ============================================================ */
-import { groupOf, yearTx, reportMatrix } from "./compute.js";
+import { groupOf, yearTx, reportMatrix, ofType, monthly, typeOf } from "./compute.js";
 import { fmtDate } from "./format.js";
+import { typeInfo } from "./config.js";
 
 /* Bọc 1 ô CSV: có dấu phẩy / nháy kép / xuống dòng thì phải bọc nháy kép,
    và nháy kép bên trong phải nhân đôi. */
@@ -30,43 +31,71 @@ function download(filename, text){
 
 /* ---------- 1. Danh sách giao dịch ---------- */
 export function exportTransactions(txs, year){
-  const rows = [['Ngày','Số tiền','Nhóm','Ghi chú']];
+  const rows = [['Ngày','Loại','Số tiền','Nhóm','Ghi chú']];
   yearTx(txs, year)
     .slice()
     .sort((a,b) => a.date < b.date ? -1 : 1)   // cũ → mới, tiện xem theo thời gian
-    .forEach(t => rows.push([fmtDate(t.date), t.amount, groupOf(t), t.note || '']));
+    .forEach(t => {
+      const ty = typeOf(t);
+      /* số tiền có dấu: chi để số âm cho đúng dòng tiền khi mở bằng Excel */
+      const signed = ty === 'out' ? -t.amount : t.amount;
+      rows.push([fmtDate(t.date), typeInfo(ty).label, signed, groupOf(t), t.note || '']);
+    });
 
   download(`giao-dich-${year}.csv`, toCSV(rows));
   return rows.length - 1;
 }
 
-/* ---------- 2. Bảng báo cáo tháng × nhóm ---------- */
-export function exportReport(txs, year){
-  const R = reportMatrix(txs, year);
-
+/* ---------- 2. Báo cáo: thu + chi + chênh lệch ---------- */
+function matrixBlock(R, year, title){
   const head = ['Tháng', ...R.groups, 'Tổng tháng', 'Luỹ kế'];
   if(R.hasPrev) head.push(`Cùng kỳ ${year-1}`, 'Tăng/Giảm', '%');
-  const rows = [head];
+  const rows = [[title], head];
 
   R.rows.forEach(r => {
-    const line = [
-      `Tháng ${r.month}`,
-      ...R.groups.map(g => r.byGroup[g] || 0),
-      r.total,
-      r.cum
-    ];
-    if(R.hasPrev){
-      line.push(r.prev, r.diff, r.pct === null ? '' : (r.pct * 100).toFixed(1) + '%');
-    }
+    const line = [`Tháng ${r.month}`, ...R.groups.map(g => r.byGroup[g] || 0), r.total, r.cum];
+    if(R.hasPrev) line.push(r.prev, r.diff, r.pct === null ? '' : (r.pct*100).toFixed(1) + '%');
     rows.push(line);
   });
 
-  /* dòng tổng cuối bảng */
   const last = R.rows[R.rows.length - 1];
   const totalLine = ['TỔNG NĂM', ...R.groups.map(g => R.totalByGroup[g]), R.grandTotal, last.cum];
   if(R.hasPrev) totalLine.push('', '', '');
   rows.push(totalLine);
+  return rows;
+}
 
-  download(`bao-cao-thu-nhap-${year}.csv`, toCSV(rows));
-  return R.rows.filter(r => r.total > 0).length;
+export function exportReport(txs, year){
+  const income  = ofType(txs, 'in');
+  const expense = ofType(txs, 'out');
+  const Rin  = reportMatrix(income, year);
+  const Rout = reportMatrix(expense, year);
+
+  let rows = [];
+
+  if(Rin.grandTotal){
+    rows = rows.concat(matrixBlock(Rin, year, 'THU NHẬP'));
+    rows.push([]);   // dòng trống ngăn cách
+  }
+  if(Rout.grandTotal){
+    rows = rows.concat(matrixBlock(Rout, year, 'CHI TIÊU'));
+    rows.push([]);
+  }
+
+  /* bảng chênh lệch từng tháng */
+  const inc = monthly(income, year);
+  const exp = monthly(expense, year);
+  const tra = monthly(ofType(txs,'transfer'), year);
+  rows.push(['CHÊNH LỆCH']);
+  rows.push(['Tháng','Thu','Hỗ trợ','Chi','Còn lại']);
+  let tI=0,tE=0,tT=0;
+  inc.forEach((_,i) => {
+    tI+=inc[i]; tE+=exp[i]; tT+=tra[i];
+    if(inc[i]||exp[i]||tra[i])
+      rows.push([`Tháng ${i+1}`, inc[i], tra[i], exp[i], inc[i]+tra[i]-exp[i]]);
+  });
+  rows.push(['CẢ NĂM', tI, tT, tE, tI+tT-tE]);
+
+  download(`bao-cao-${year}.csv`, toCSV(rows));
+  return Rin.rows.filter(r => r.total > 0).length;
 }

@@ -1,8 +1,11 @@
 /* ============================================================
-   ui/report.js — Trang Báo cáo: bảng 12 tháng × nhóm thu nhập
+   ui/report.js — Trang Báo cáo
+   Ver 4.2: 3 khối — bảng THU, bảng CHI, và bảng CHÊNH LỆCH tháng.
+   Mỗi bảng nhóm dùng chung một hàm, chỉ khác danh sách đầu vào
+   (đã lọc theo loại) và bộ màu nhóm.
    ============================================================ */
-import { groupStyle } from "../config.js";
-import { reportMatrix } from "../compute.js";
+import { groupStyleFor } from "../config.js";
+import { reportMatrix, ofType, monthly } from "../compute.js";
 import { fmtVND, fmtShort, esc } from "../format.js";
 
 const $ = id => document.getElementById(id);
@@ -10,26 +13,17 @@ const $ = id => document.getElementById(id);
 /* ô số: 0 thì để dấu gạch cho đỡ rối mắt */
 const num = v => v ? fmtVND(v) : '<span class="z">–</span>';
 
-export function renderReport(txs, year){
-  if(year == null) return;
-  const R = reportMatrix(txs, year);
-  const el = $('rpt');
-
-  if(!R.grandTotal){
-    el.innerHTML = `<div class="empty"><div class="em">📊</div>Chưa có dữ liệu năm ${year}</div>`;
-    return;
-  }
-
+/* Dựng 1 bảng nhóm (12 tháng × nhóm) cho một loại giao dịch */
+function matrixTable(R, type, year, word){
   const head = `<tr>
     <th class="sticky-c">Tháng</th>
-    ${R.groups.map(g => `<th><span class="hdot" style="background:${groupStyle(g).c}"></span>${esc(g)}</th>`).join('')}
+    ${R.groups.map(g => `<th><span class="hdot" style="background:${groupStyleFor(type,g).c}"></span>${esc(g)}</th>`).join('')}
     <th class="strong">Tổng</th>
     <th>Luỹ kế</th>
     ${R.hasPrev ? `<th>Cùng kỳ ${year-1}</th><th>Tăng/Giảm</th>` : ''}
   </tr>`;
 
   const body = R.rows.map(r => {
-    /* tháng chưa có thu: làm mờ cả dòng */
     const dim = r.total ? '' : ' dim';
     const cmp = R.hasPrev
       ? `<td>${num(r.prev)}</td>
@@ -55,15 +49,97 @@ export function renderReport(txs, year){
     ${R.hasPrev ? '<td></td><td></td>' : ''}
   </tr>`;
 
-  el.innerHTML = `<div class="tbl-scroll">
+  return `<div class="tbl-scroll">
     <table class="rtbl">
-      <thead>${head}</thead>
-      <tbody>${body}</tbody>
-      <tfoot>${foot}</tfoot>
+      <thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot>
     </table>
-  </div>
-  <div class="tbl-hint">Vuốt ngang để xem thêm cột · số liệu tính bằng đồng</div>`;
+  </div>`;
+}
 
+/* Bảng chênh lệch: mỗi tháng Thu − Chi (+ hỗ trợ) = Còn lại */
+function diffTable(txs, year){
+  const inc = monthly(ofType(txs,'in'), year);
+  const exp = monthly(ofType(txs,'out'), year);
+  const tra = monthly(ofType(txs,'transfer'), year);
+  const hasTransfer = tra.some(v => v > 0);
+
+  let tI=0, tE=0, tT=0;
+  const rows = inc.map((v,i) => {
+    const net = inc[i] + tra[i] - exp[i];
+    tI += inc[i]; tE += exp[i]; tT += tra[i];
+    if(!inc[i] && !exp[i] && !tra[i]) return '';
+    const cls = net >= 0 ? 'pos' : 'neg';
+    const sign = net < 0 ? '−' : '';
+    return `<tr>
+      <td>T${i+1}</td>
+      <td>${num(inc[i])}</td>
+      ${hasTransfer ? `<td>${num(tra[i])}</td>` : ''}
+      <td>${num(exp[i])}</td>
+      <td class="${cls}">${sign}${fmtVND(Math.abs(net))}</td>
+    </tr>`;
+  }).join('');
+
+  const totNet = tI + tT - tE;
+  const tcls = totNet >= 0 ? 'pos' : 'neg';
+  const tsign = totNet < 0 ? '−' : '';
+
+  return `<table class="difftbl">
+    <thead><tr>
+      <th>Tháng</th><th>Thu</th>${hasTransfer ? '<th>Hỗ trợ</th>' : ''}<th>Chi</th><th>Còn lại</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr>
+      <td>Cả năm</td><td>${num(tI)}</td>${hasTransfer ? `<td>${num(tT)}</td>` : ''}<td>${num(tE)}</td>
+      <td class="${tcls}">${tsign}${fmtVND(Math.abs(totNet))}</td>
+    </tr></tfoot>
+  </table>`;
+}
+
+export function renderReport(txs, year){
+  if(year == null) return;
+  const el = $('rpt');
+
+  const income  = ofType(txs, 'in');
+  const expense = ofType(txs, 'out');
+  const Rin  = reportMatrix(income, year);
+  const Rout = reportMatrix(expense, year);
+
+  if(!Rin.grandTotal && !Rout.grandTotal){
+    el.innerHTML = `<div class="empty"><div class="em">📊</div>Chưa có dữ liệu năm ${year}</div>`;
+    $('rptTitle').textContent = `Báo cáo ${year}`;
+    $('rptSub').textContent = '';
+    return;
+  }
+
+  const blocks = [];
+
+  /* 1. Bảng THU */
+  if(Rin.grandTotal){
+    blocks.push(`<div class="rpt-block">
+      <h4>📥 Thu nhập <span class="rb-tot in">${fmtShort(Rin.grandTotal)}</span></h4>
+      ${matrixTable(Rin, 'in', year, 'thu')}
+    </div>`);
+  }
+
+  /* 2. Bảng CHI */
+  if(Rout.grandTotal){
+    blocks.push(`<div class="rpt-block">
+      <h4>📤 Chi tiêu <span class="rb-tot out">${fmtShort(Rout.grandTotal)}</span></h4>
+      ${matrixTable(Rout, 'out', year, 'chi')}
+    </div>`);
+  }
+
+  /* 3. Bảng CHÊNH LỆCH tháng */
+  blocks.push(`<div class="rpt-block">
+    <h4>⚖️ Chênh lệch từng tháng</h4>
+    ${diffTable(txs, year)}
+  </div>`);
+
+  el.innerHTML = blocks.join('') +
+    `<div class="tbl-hint">Vuốt ngang để xem thêm cột · số liệu tính bằng đồng</div>`;
+
+  const net = Rin.grandTotal - Rout.grandTotal;
   $('rptTitle').textContent = `Báo cáo ${year}`;
-  $('rptSub').textContent   = `${fmtShort(R.grandTotal)} · ${R.rows.filter(r => r.total > 0).length} tháng có thu`;
+  $('rptSub').textContent   =
+    `Thu ${fmtShort(Rin.grandTotal)} · Chi ${fmtShort(Rout.grandTotal)} · Còn ${net<0?'−':''}${fmtShort(Math.abs(net))}`;
 }

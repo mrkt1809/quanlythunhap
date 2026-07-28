@@ -304,3 +304,36 @@
 
 /* Ở chế độ net: thẻ tổng đổi màu nhẹ để phân biệt */
 body.mode-net .hero{background:linear-gradient(135deg,#1a3a2e,#12305c)}
+
+/* ============================================================
+   Ver 4.2 (Chặng 3) — bộ lọc loại trong Giao dịch + báo cáo thu/chi
+   ============================================================ */
+
+/* hàng chip lọc loại */
+.tyfilter{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.tyf{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:100px;
+  border:1.5px solid var(--line);background:var(--paper2);font-family:inherit;font-size:13px;
+  font-weight:600;color:var(--ink);cursor:pointer;transition:.15s;white-space:nowrap}
+.tyf:active{transform:scale(.96)}
+.tyf-n{font-size:11px;font-weight:700;opacity:.6;background:rgba(0,0,0,.06);padding:1px 6px;border-radius:8px}
+.tyf.on{color:#fff;border-color:transparent}
+.tyf.on .tyf-n{background:rgba(255,255,255,.25);opacity:.9}
+.tyf-all.on{background:var(--navy)}
+.tyf-in.on{background:var(--green)}
+.tyf-out.on{background:var(--red)}
+.tyf-transfer.on{background:var(--gold)}
+
+/* nhiều bảng trong báo cáo */
+.rpt-block{margin-bottom:26px}
+.rpt-block > h4{margin:0 0 10px;font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px}
+.rpt-block > h4 .rb-tot{margin-left:auto;font-size:13px;font-weight:700}
+.rpt-block > h4 .rb-tot.in{color:var(--green)}
+.rpt-block > h4 .rb-tot.out{color:var(--red)}
+/* dòng chênh lệch */
+.difftbl{width:100%;border-collapse:collapse;margin-top:4px;font-size:13.5px}
+.difftbl td,.difftbl th{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+.difftbl th:first-child,.difftbl td:first-child{text-align:left;font-weight:600}
+.difftbl thead th{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.difftbl .pos{color:var(--green);font-weight:700}
+.difftbl .neg{color:var(--red);font-weight:700}
+.difftbl tfoot td{font-weight:800;border-top:2px solid var(--navy);border-bottom:none}

@@ -21,6 +21,29 @@ let moFilter = null;
 export const setMonthFilter = m => { moFilter = m; renderList(); };
 export const clearMonthFilter = () => { moFilter = null; };
 
+/* Lọc theo loại giao dịch. null = tất cả loại. */
+let tyFilter = null;
+
+/* Hàng chip lọc loại, kèm số khoản mỗi loại trong năm */
+function renderTypeFilter(txs, year){
+  const box = $('tyFilter');
+  if(!box) return;
+  const inYear = yearTx(txs, year);
+  const cnt = { all:inYear.length, in:0, out:0, transfer:0 };
+  inYear.forEach(t => { cnt[typeOf(t)] = (cnt[typeOf(t)]||0) + 1; });
+
+  const chips = [
+    ['all','Tất cả', cnt.all],
+    ['in','Thu', cnt.in],
+    ['out','Chi', cnt.out],
+    ['transfer','Hỗ trợ', cnt.transfer]
+  ];
+  box.innerHTML = chips.map(([v,label,n]) => {
+    const on = (tyFilter === null && v === 'all') || tyFilter === v;
+    return `<button class="tyf tyf-${v} ${on?'on':''}" data-ty="${v}">${label}<span class="tyf-n">${n}</span></button>`;
+  }).join('');
+}
+
 export function renderList(){
   const txs = getTxs(), year = getYear();
   if(year == null) return;
@@ -28,7 +51,11 @@ export function renderList(){
   const q = stripVN($('search').value || '');
   let rows = yearTx(txs, year);
   if(moFilter !== null) rows = rows.filter(t => new Date(t.date).getMonth() === moFilter);
+  if(tyFilter !== null) rows = rows.filter(t => typeOf(t) === tyFilter);
   if(q) rows = rows.filter(t => stripVN(t.note || '').includes(q));
+
+  /* hàng chip lọc loại: Tất cả · Thu · Chi · Hỗ trợ */
+  renderTypeFilter(txs, year);
 
   /* chip hiện bộ lọc tháng đang áp dụng */
   const chip = $('moChip');
@@ -93,6 +120,15 @@ export function bindList(){
   /* bỏ lọc tháng (nút × trên chip — chip được vẽ lại nên phải uỷ quyền) */
   $('moChip').addEventListener('click', e => {
     if(e.target.closest('#moChipX')){ moFilter = null; renderList(); }
+  });
+
+  /* chip lọc loại: Tất cả / Thu / Chi / Hỗ trợ */
+  const tyBox = $('tyFilter');
+  if(tyBox) tyBox.addEventListener('click', e => {
+    const b = e.target.closest('.tyf');
+    if(!b) return;
+    tyFilter = b.dataset.ty === 'all' ? null : b.dataset.ty;
+    renderList();
   });
 
   /* trạng thái kéo — dùng chung cho cả chuột và cảm ứng */
