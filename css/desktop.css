@@ -152,6 +152,7 @@
   .modal{align-items:center}
   .msheet{
     max-width:520px;
+    max-height:88vh;
     border-radius:22px;
     padding:28px 30px 30px;
     animation:pop .28s cubic-bezier(.2,.85,.25,1);

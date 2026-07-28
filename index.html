@@ -142,15 +142,23 @@
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="msheet">
-    <h2 id="mTitle">Thêm khoản thu</h2>
-    <div class="ms-sub">Nhóm thu nhập sẽ tự nhận diện từ ghi chú</div>
+    <h2 id="mTitle">Thêm giao dịch</h2>
+    <div class="ms-sub">Chọn loại, nhóm sẽ tự đoán từ ghi chú</div>
+
+    <!-- chọn loại: Thu / Chi / Hỗ trợ -->
+    <div class="mtype-tabs" id="mTypeTabs"></div>
+
     <div class="fld"><label>Số tiền</label>
       <div class="amt-in"><input id="mAmount" inputmode="numeric" placeholder="0"><span class="vnd">VND</span></div>
     </div>
-    <div class="fld"><label>Ngày nhận</label><input id="mDate" type="date"></div>
+    <div class="fld"><label>Ngày</label><input id="mDate" type="date"></div>
     <div class="fld"><label>Ghi chú (nội dung sao kê)</label>
-      <textarea id="mNote" placeholder="VD: LƯƠNG GIỮA KỲ THÁNG 06/2026"></textarea>
+      <textarea id="mNote" placeholder="VD: ăn trưa, học phí, trả nợ..."></textarea>
       <div class="predict" id="predict"></div>
+    </div>
+    <!-- hàng nút nhóm: chạm để chọn tay -->
+    <div class="fld"><label>Nhóm</label>
+      <div class="gchips" id="mGroups"></div>
     </div>
     <div class="mrow">
       <button class="mbtn del" id="mDel" style="display:none">🗑</button>

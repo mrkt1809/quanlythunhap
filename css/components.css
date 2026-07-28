@@ -130,7 +130,7 @@
 .modal{position:fixed;inset:0;background:rgba(10,20,35,.55);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:50}
 .modal.on{display:flex;animation:fade .25s}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.msheet{background:var(--paper);width:100%;max-width:760px;border-radius:26px 26px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));animation:slideup .35s cubic-bezier(.2,.85,.25,1)}
+.msheet{background:var(--paper);width:100%;max-width:760px;border-radius:26px 26px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));animation:slideup .35s cubic-bezier(.2,.85,.25,1);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
 .msheet h2{font-family:'Fraunces';font-weight:600;font-size:21px;margin-bottom:4px}
 .msheet .ms-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
@@ -141,8 +141,25 @@
 .fld textarea{resize:none;min-height:62px;line-height:1.4}
 .amt-in{position:relative}
 .amt-in .vnd{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;font-size:14px;pointer-events:none}
-.predict{font-size:12.5px;color:var(--navy);margin-top:7px;display:none;align-items:center;gap:6px;font-weight:600}
-.predict .pc{width:10px;height:10px;border-radius:3px}
+.predict{font-size:12.5px;color:var(--navy);margin-top:7px;display:none;align-items:center;gap:6px;font-weight:600;flex-wrap:wrap}
+.predict .pc{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.predict .pc-hint{color:var(--muted);font-weight:500}
+
+/* ---------- Chọn loại: Thu / Chi / Hỗ trợ ---------- */
+.mtype-tabs{display:flex;gap:8px;margin-bottom:18px}
+.mtype{flex:1;padding:12px 8px;border-radius:13px;border:1.5px solid var(--line);
+  background:var(--paper2);font-family:inherit;font-size:15px;font-weight:700;
+  color:var(--muted);cursor:pointer;transition:.15s}
+.mtype:active{transform:scale(.97)}
+.mtype.on{border-color:var(--tc);color:#fff;background:var(--tc)}
+
+/* ---------- Hàng nút chọn nhóm ---------- */
+.gchips{display:flex;flex-wrap:wrap;gap:7px}
+.gchip{display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:100px;
+  border:1.5px solid var(--line);background:var(--paper2);font-family:inherit;
+  font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;transition:.15s;line-height:1.1}
+.gchip:active{transform:scale(.96)}
+.gchip.on{border-color:var(--gc);background:#f3ede0;color:var(--ink);box-shadow:inset 0 0 0 1px var(--gc)}
 .mrow{display:flex;gap:10px;margin-top:8px}
 .mbtn{flex:1;padding:15px;border-radius:14px;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
 .mbtn.save{background:var(--navy);color:var(--paper2)}

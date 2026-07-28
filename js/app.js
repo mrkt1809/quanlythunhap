@@ -76,7 +76,7 @@ async function doLogin(){
 $('btnLogin').addEventListener('click', doLogin);
 $('password').addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); });
 $('btnLogout').addEventListener('click', () => store.logout());
-$('btnAdd').addEventListener('click', openAdd);
+$('btnAdd').addEventListener('click', () => openAdd('in'));
 
 document.querySelectorAll('nav.tabs button[data-v]').forEach(b => {
   b.addEventListener('click', () => go(b.dataset.v));
