@@ -6,9 +6,9 @@
    - Thu–Chi: khối hiển thị riêng (thẻ 3 số + biểu đồ so sánh).
    ============================================================ */
 import { typeInfo, groupStyleFor } from "../config.js";
-import { stats, byGroup, years, ofType, totalsByType, monthly } from "../compute.js";
+import { stats, byGroup, years, ofType, totalsByType, monthly, axisTicks } from "../compute.js";
 import { fmtVND, fmtShort } from "../format.js";
-import { renderChart, renderLegend, bindChart } from "./chart.js";
+import { renderChart, renderLegend, renderNetChart as renderNetChartUI, bindChart } from "./chart.js";
 import { setYear } from "../store.js";
 
 const $ = id => document.getElementById(id);
@@ -168,27 +168,8 @@ function renderNetChart(txs, year){
   const inc = monthly(ofType(txs,'in'), year);
   const exp = monthly(ofType(txs,'out'), year);
   const peak = Math.max(...inc, ...exp, 1);
-
-  /* trục Y + gridline (dùng lại cấu trúc cũ) */
-  import("../compute.js").then(({ axisTicks }) => {
-    const { ticks, top } = axisTicks(peak);
-    const desc = ticks.slice().reverse();
-    $('yaxis').innerHTML = desc.map(v => `<div class="ytick"><span>${v===0?'0':fmtShort(v)}</span></div>`).join('');
-    $('grid').innerHTML  = desc.map(() => `<div class="gline"></div>`).join('');
-
-    $('bars').innerHTML = inc.map((iv, i) => {
-      const ev = exp[i];
-      return `<div class="bcol netcol" data-mo="${i}">
-        <div class="colbox netbox">
-          <div class="nbar nin"  style="height:${iv/top*100}%" title="Thu ${fmtVND(iv)}"></div>
-          <div class="nbar nout" style="height:${ev/top*100}%" title="Chi ${fmtVND(ev)}"></div>
-        </div>
-        <div class="mo">${i+1}</div>
-      </div>`;
-    }).join('');
-  });
-
-  $('cmpHint').textContent = '';
+  const axis = axisTicks(peak);
+  renderNetChartUI(inc, exp, year, axis);
 }
 
 /* ---- nhãn 4 KPI (đổi theo chế độ) ---- */

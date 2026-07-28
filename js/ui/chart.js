@@ -15,8 +15,13 @@ export const getHidden = () => hidden;
 /* Ngữ cảnh lần vẽ gần nhất, để tooltip tra cứu mà không tính lại */
 let ctx = { byMG:[], cur:[], prev:[], year:0, hasCompare:false, type:'in' };
 
+/* Ngữ cảnh riêng cho biểu đồ Thu–Chi (net): mỗi tháng có thu + chi.
+   Tooltip ở chế độ net đọc bảng này, KHÔNG đọc ctx của biểu đồ nhóm. */
+let netCtx = null;   // null = đang không ở chế độ net
+
 /* ---------------- vẽ biểu đồ ---------------- */
 export function renderChart(txs, year, type = 'in'){
+  netCtx = null;   // rời chế độ net, tooltip trở về đọc ctx nhóm
   const d = chartData(txs, year, hidden);
   ctx = { byMG:d.byMG, cur:d.cur, prev:d.prev, year, hasCompare:d.hasCompare, type };
 
@@ -63,13 +68,56 @@ export function renderLegend(sorted, type = 'in'){
     }).join('');
 }
 
+/* ---------------- biểu đồ Thu–Chi (net) ----------------
+   Hai cột thu/chi cạnh nhau mỗi tháng. Lưu netCtx để tooltip đọc đúng
+   (đây là chỗ trước kia gây lỗi "chưa có khoản thu" ở cột có thu). */
+export function renderNetChart(inc, exp, year, axis){
+  const { ticks, top } = axis;
+  netCtx = { inc, exp, year, top };
+
+  const desc = ticks.slice().reverse();
+  $('yaxis').innerHTML = desc.map(v => `<div class="ytick"><span>${v===0?'0':fmtShort(v)}</span></div>`).join('');
+  $('grid').innerHTML  = desc.map(() => `<div class="gline"></div>`).join('');
+
+  $('bars').innerHTML = inc.map((iv, i) => {
+    const ev = exp[i];
+    return `<div class="bcol netcol" data-mo="${i}" tabindex="0">
+      <div class="colbox netbox">
+        <div class="nbar nin"  style="height:${iv/top*100}%"></div>
+        <div class="nbar nout" style="height:${ev/top*100}%"></div>
+      </div>
+      <div class="mo">${i+1}</div>
+    </div>`;
+  }).join('');
+
+  $('cmpHint').textContent = '';
+}
+
 /* ---------------- tooltip ---------------- */
 function tipHTML(i){
+  /* Chế độ Thu–Chi: tooltip riêng, đọc netCtx (thu + chi của tháng) */
+  if(netCtx){
+    const inc = netCtx.inc[i], exp = netCtx.exp[i];
+    if(!inc && !exp){
+      return `<div class="tt-h">Tháng ${i+1}/${netCtx.year}</div>
+              <div class="tt-empty">Chưa có giao dịch</div>`;
+    }
+    const diff = inc - exp;
+    const up = diff >= 0;
+    const hint = touchMode ? `<div class="tt-hint">Chạm lần nữa để xem giao dịch</div>` : '';
+    return `<div class="tt-h">Tháng ${i+1}/${netCtx.year}</div>
+      <div class="tt-r"><span class="tt-n"><i style="background:var(--green)"></i>Thu</span><span class="tt-v">${fmtVND(inc)}</span></div>
+      <div class="tt-r"><span class="tt-n"><i style="background:var(--red)"></i>Chi</span><span class="tt-v">${fmtVND(exp)}</span></div>
+      <div class="tt-tot ${up?'up':'down'}"><span>Còn lại</span><span>${up?'':'−'}${fmtVND(Math.abs(diff))}</span></div>
+      ${hint}`;
+  }
+
   const total = ctx.cur[i];
 
   if(!total && !ctx.prev[i]){
+    const emptyWord = ctx.type === 'out' ? 'Chưa có khoản chi' : 'Chưa có khoản thu';
     return `<div class="tt-h">Tháng ${i+1}/${ctx.year}</div>
-            <div class="tt-empty">Chưa có khoản thu</div>`;
+            <div class="tt-empty">${emptyWord}</div>`;
   }
 
   const rows = Object.entries(ctx.byMG[i])
