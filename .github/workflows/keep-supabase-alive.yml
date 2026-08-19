@@ -1,0 +1,33 @@
+name: Giữ Supabase thức (chống auto-pause)
+
+# Chạy tự động mỗi ngày + cho phép bấm chạy tay khi cần
+on:
+  schedule:
+    # 23:00 UTC = 06:00 giờ VN mỗi ngày. Cron dùng giờ UTC.
+    - cron: '0 23 * * *'
+  workflow_dispatch:   # nút "Run workflow" để chạy thủ công kiểm tra
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Gửi một truy vấn nhẹ tới Supabase
+        run: |
+          # Đọc dữ liệu 1 dòng từ bảng transactions qua REST API.
+          # Đây là "hoạt động" đủ để Supabase không coi dự án là bỏ không.
+          # URL và KEY lấy từ GitHub Secrets (không lộ trong code).
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/transactions?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "HTTP status: $code"
+
+          # 200 hoặc 206 = thành công. 401 do RLS chặn cũng TÍNH LÀ có hoạt động
+          # (database vẫn phải thức để trả lời), nên coi là ổn.
+          if [ "$code" = "200" ] || [ "$code" = "206" ] || [ "$code" = "401" ]; then
+            echo "OK — Supabase đã nhận truy vấn, dự án được giữ thức."
+          else
+            echo "CẢNH BÁO — mã trả về bất thường: $code"
+            exit 1
+          fi
