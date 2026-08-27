@@ -8,96 +8,89 @@
 
 ## A. Git / Branch
 
-*(Phần này do bạn điền sau khi chạy lệnh Git ở máy — tôi không truy cập được repo.)*
+- Branch ban đầu: `main`
+- Branch làm việc V3: `feat/uiux-v3` (đã push lên `origin/feat/uiux-v3`)
+- Commit hiện tại (HEAD): `3e1bb7b`
 
-- Branch ban đầu: `__________` (dự kiến `main`)
-- Branch làm việc V3: `feat/uiux-v3`
-- Commit hiện tại (HEAD): `__________`
-
-Lệnh lấy thông tin:
-```
-git branch --show-current
-git rev-parse --short HEAD
-git log --oneline -1
-```
+Xác nhận: đang làm trên nhánh riêng, chưa merge, chưa deploy production.
 
 ---
 
-## B. Baseline số liệu — ⚠️ CẦN DỮ LIỆU THẬT TỪ BẠN
+## B. Baseline số liệu — NĂM 2026 (từ report CSV thật)
 
-Các con số này phải lấy từ **Supabase production** (dữ liệu thật của bạn), không phải
-từ dữ liệu demo và không chép tay từ hội thoại. Tôi không nối được vào Supabase của bạn
-từ môi trường này, nên cần bạn cung cấp một trong hai:
+Nguồn: file `bao-cao-2026.csv` bạn xuất từ app. Các con số tính lại từ chính file này.
 
-1. **Xuất CSV** từ app (nút CSV ở tab Giao dịch cho năm chính) rồi gửi file — tôi sẽ
-   chạy qua `compute.js` để điền bảng dưới, đảm bảo con số do CODE sinh ra.
-2. Hoặc chụp màn hình Tổng quan (cả 3 chế độ Thu/Chi/Thu–Chi) + Báo cáo cho năm chính.
+> **Phát hiện quan trọng:** Năm 2026 hiện **CHỈ CÓ THU, chưa có Chi và Hỗ trợ nào.**
+> File report không có section "CHI TIÊU" (nghĩa là chưa có khoản chi), và trong bảng
+> Chênh lệch cả cột Chi lẫn Hỗ trợ đều = 0. Vì vậy baseline Chi/Hỗ trợ/Net dưới đây
+> phản ánh đúng thực tế: Chi = 0, Hỗ trợ = 0, Net = Thu.
 
-Bảng cần điền (năm chính đang có dữ liệu — dự kiến **2026**):
+| Chỉ số | Giá trị | Nguồn |
+|---|--:|---|
+| Tổng Thu | **507.075.341** | TỔNG NĂM, cột Tổng tháng |
+| Tổng Chi | **0** | không có section CHI TIÊU |
+| Tổng Hỗ trợ | **0** | cột Hỗ trợ = 0 |
+| Còn lại / Net | **507.075.341** | = Thu (vì Chi=Hỗ trợ=0) |
+| Số giao dịch Thu | ⚠️ *chưa xác định* | report CSV gộp theo tháng×nhóm, không có số dòng |
+| Số giao dịch Chi | **0** | không có khoản chi |
+| Số giao dịch Hỗ trợ | **0** | không có khoản hỗ trợ |
+| Số tháng có Thu | **8** | T1–T8 có phát sinh |
+| Số tháng có Chi | **0** | — |
+| TB tháng (Thu) | **63.384.418** | 507.075.341 ÷ 8 |
+| Tháng cao nhất (Thu) | **Tháng 2** | — |
+| Giá trị tháng cao nhất | **113.790.892** | — |
+| YoY (Thu, so cùng kỳ 2025) | **+39,5%** | chỉ cộng 8 tháng năm nay có thu |
 
-| Chỉ số | Giá trị | Nguồn tính (hàm) |
-|---|---|---|
-| Tổng Thu | `____` | `stats(ofType(txs,'in'), y).total` |
-| Tổng Chi | `____` | `stats(ofType(txs,'out'), y).total` |
-| Tổng Hỗ trợ | `____` | `totalsByType(txs,y).transfer` |
-| Còn lại / Net | `____` | `totalsByType(txs,y).net` = thu+hỗ trợ−chi |
-| Số giao dịch Thu | `____` | `ofType(txs,'in')` trong năm, đếm |
-| Số giao dịch Chi | `____` | `ofType(txs,'out')` trong năm, đếm |
-| Số giao dịch Hỗ trợ | `____` | `ofType(txs,'transfer')` trong năm, đếm |
-| Số tháng có Thu | `____` | `stats(...'in').activeMonths` |
-| Số tháng có Chi | `____` | `stats(...'out').activeMonths` |
-| TB tháng (Thu) | `____` | `stats(...'in').avgMonth` |
-| Tháng cao nhất (Thu) | `____` | `stats(...'in').maxMonth` |
-| Giá trị tháng cao nhất (Thu) | `____` | `stats(...'in').maxValue` |
-| YoY (Thu, so 2025) | `____` | `yoy(ofType(txs,'in'), y)` |
-
-> Ghi chú: mọi chỉ số "TB tháng / Tháng cao nhất / YoY" trên màn Tổng quan hiện
-> **tính cho chế độ đang xem** (Thu hoặc Chi), không phải gộp. Baseline nên ghi cho
-> chế độ **Thu** (mặc định) để nhất quán.
+> ⚠️ *Số giao dịch Thu* chưa điền được vì report CSV không chứa từng dòng giao dịch.
+> Muốn có con số chính xác: xuất **CSV ở tab Giao dịch** (nút CSV trong tab Giao dịch,
+> khác với nút trong tab Báo cáo) — file đó liệt kê từng giao dịch, đếm được.
+> Không bắt buộc cho Phase 0; có thể bổ sung sau.
 
 ---
 
 ## C. Monthly baseline — ⚠️ CẦN DỮ LIỆU THẬT
 
-Điền sau khi có dữ liệu. Mỗi ô lấy từ `monthly(ofType(txs, type), y)`.
-Net mỗi tháng = Thu + Hỗ trợ − Chi.
+Nguồn: report CSV 2026. Net = Thu + Hỗ trợ − Chi (Chi=Hỗ trợ=0 nên Net=Thu).
 
 | Tháng | Thu | Chi | Hỗ trợ | Net |
 |---|--:|--:|--:|--:|
-| T1 | | | | |
-| T2 | | | | |
-| T3 | | | | |
-| T4 | | | | |
-| T5 | | | | |
-| T6 | | | | |
-| T7 | | | | |
-| T8 | | | | |
-| T9 | | | | |
-| T10 | | | | |
-| T11 | | | | |
-| T12 | | | | |
-| **Cả năm** | | | | |
+| T1 | 53.692.782 | 0 | 0 | 53.692.782 |
+| T2 | 113.790.892 | 0 | 0 | 113.790.892 |
+| T3 | 111.027.210 | 0 | 0 | 111.027.210 |
+| T4 | 42.195.928 | 0 | 0 | 42.195.928 |
+| T5 | 39.506.195 | 0 | 0 | 39.506.195 |
+| T6 | 81.360.369 | 0 | 0 | 81.360.369 |
+| T7 | 24.634.333 | 0 | 0 | 24.634.333 |
+| T8 | 40.867.632 | 0 | 0 | 40.867.632 |
+| T9 | 0 | 0 | 0 | 0 |
+| T10 | 0 | 0 | 0 | 0 |
+| T11 | 0 | 0 | 0 | 0 |
+| T12 | 0 | 0 | 0 | 0 |
+| **Cả năm** | **507.075.341** | **0** | **0** | **507.075.341** |
 
 ---
 
 ## D. Group baseline — ⚠️ CẦN DỮ LIỆU THẬT
 
-Nguồn: `byGroup(ofType(txs, type), y)`; % = giá trị nhóm ÷ tổng của type đó.
+Nguồn: dòng TỔNG NĂM trong report CSV; % = giá trị nhóm ÷ tổng Thu.
 
-### Thu
+### Thu (tổng 507.075.341)
 | Group | Amount | % |
 |---|--:|--:|
-| | | |
+| Lương | 187.615.516 | 37,0% |
+| Quỹ thu nhập | 154.666.218 | 30,5% |
+| Thưởng lễ/Tết | 43.187.392 | 8,5% |
+| Thưởng KPI | 39.670.734 | 7,8% |
+| Phụ cấp dự án | 39.317.481 | 7,8% |
+| Thưởng khác | 26.850.000 | 5,3% |
+| Khác | 12.768.000 | 2,5% |
+| Hỗ trợ/Phúc lợi | 3.000.000 | 0,6% |
 
 ### Chi
-| Group | Amount | % |
-|---|--:|--:|
-| | | |
+*Không có dữ liệu (chưa có khoản chi nào trong 2026).*
 
 ### Hỗ trợ
-| Group | Amount | % |
-|---|--:|--:|
-| | | |
+*Không có dữ liệu (chưa có khoản hỗ trợ nào trong 2026).*
 
 ---
 
@@ -244,9 +237,13 @@ Xem file riêng: `UIUX_V3_REGRESSION_CHECKLIST.md`.
 
 ## J. Files changed trong Phase 0
 
-- ✅ Tạo mới: `UIUX_V3_BASELINE.md` (file này)
+- ✅ Tạo mới: `UIUX_V3_BASELINE.md` (file này) — đã điền Git + số liệu 2026 từ report CSV thật
 - ✅ Tạo mới: `UIUX_V3_REGRESSION_CHECKLIST.md`
 - ❌ Không sửa bất kỳ file code nào (js/css/html/sql).
+
+### Còn thiếu (bổ sung sau, không chặn Phase 0)
+- Số giao dịch Thu (cần CSV tab Giao dịch, không phải report CSV).
+- Baseline Chi / Hỗ trợ: hiện = 0 vì 2026 chưa có; khi bắt đầu nhập chi thì cập nhật lại.
 
 ---
 
