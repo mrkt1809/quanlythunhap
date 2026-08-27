@@ -31,9 +31,9 @@ Nguồn: file `bao-cao-2026.csv` bạn xuất từ app. Các con số tính lạ
 | Tổng Chi | **0** | không có section CHI TIÊU |
 | Tổng Hỗ trợ | **0** | cột Hỗ trợ = 0 |
 | Còn lại / Net | **507.075.341** | = Thu (vì Chi=Hỗ trợ=0) |
-| Số giao dịch Thu | ⚠️ *chưa xác định* | report CSV gộp theo tháng×nhóm, không có số dòng |
-| Số giao dịch Chi | **0** | không có khoản chi |
-| Số giao dịch Hỗ trợ | **0** | không có khoản hỗ trợ |
+| Số giao dịch Thu | **48** | Transaction CSV, đếm dòng Loại=Thu |
+| Số giao dịch Chi | **0** | không có dòng Loại=Chi |
+| Số giao dịch Hỗ trợ | **0** | không có dòng Loại=Hỗ trợ |
 | Số tháng có Thu | **8** | T1–T8 có phát sinh |
 | Số tháng có Chi | **0** | — |
 | TB tháng (Thu) | **63.384.418** | 507.075.341 ÷ 8 |
@@ -41,10 +41,14 @@ Nguồn: file `bao-cao-2026.csv` bạn xuất từ app. Các con số tính lạ
 | Giá trị tháng cao nhất | **113.790.892** | — |
 | YoY (Thu, so cùng kỳ 2025) | **+39,5%** | chỉ cộng 8 tháng năm nay có thu |
 
-> ⚠️ *Số giao dịch Thu* chưa điền được vì report CSV không chứa từng dòng giao dịch.
-> Muốn có con số chính xác: xuất **CSV ở tab Giao dịch** (nút CSV trong tab Giao dịch,
-> khác với nút trong tab Báo cáo) — file đó liệt kê từng giao dịch, đếm được.
-> Không bắt buộc cho Phase 0; có thể bổ sung sau.
+> **Nguồn kép đã đối chiếu:** Số liệu trên xác nhận bằng CẢ HAI file — Report CSV
+> (`bao-cao-2026.csv`) và Transaction CSV (`giao-dich-2026.csv`, 48 dòng). Tổng, monthly
+> T1–T8, và cả 8 nhóm khớp tuyệt đối giữa hai file (không chênh lệch nào).
+>
+> **Lưu ý phân biệt dễ nhầm:** Trong danh sách có 1 giao dịch nhóm **"Hỗ trợ/Phúc lợi"**
+> (3.000.000, ngày 28/05) — đây là **nhóm THU** (type=`in`), KHÔNG phải loại **Hỗ trợ**
+> (type=`transfer`). Vì vậy "Tổng Hỗ trợ = 0" (không có giao dịch type=transfer) là ĐÚNG,
+> dù có một nhóm thu tên gần giống. Đây chính là ca dễ nhầm mà báo cáo AS-IS đã cảnh báo.
 
 ---
 
@@ -237,13 +241,15 @@ Xem file riêng: `UIUX_V3_REGRESSION_CHECKLIST.md`.
 
 ## J. Files changed trong Phase 0
 
-- ✅ Tạo mới: `UIUX_V3_BASELINE.md` (file này) — đã điền Git + số liệu 2026 từ report CSV thật
+- ✅ Tạo mới: `UIUX_V3_BASELINE.md` (file này) — đã điền đầy đủ Git + số liệu 2026,
+  đối chiếu kép Report CSV + Transaction CSV, không còn TBD về dữ liệu 2026.
 - ✅ Tạo mới: `UIUX_V3_REGRESSION_CHECKLIST.md`
 - ❌ Không sửa bất kỳ file code nào (js/css/html/sql).
 
-### Còn thiếu (bổ sung sau, không chặn Phase 0)
-- Số giao dịch Thu (cần CSV tab Giao dịch, không phải report CSV).
-- Baseline Chi / Hỗ trợ: hiện = 0 vì 2026 chưa có; khi bắt đầu nhập chi thì cập nhật lại.
+### Ghi chú
+- Baseline Chi / Hỗ trợ hiện = 0 vì 2026 thực tế chưa có giao dịch chi/hỗ trợ nào
+  (đã xác nhận qua cả 2 CSV). Khi bắt đầu nhập chi thật thì cập nhật lại các mục này.
+  Đây KHÔNG phải TBD do thiếu dữ liệu — mà là giá trị thật (= 0) tại thời điểm baseline.
 
 ---
 
