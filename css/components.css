@@ -115,6 +115,13 @@
 
 /* ---------- Danh sách giao dịch ---------- */
 .search{width:100%;border:1px solid var(--line);background:var(--paper2);border-radius:13px;padding:12px 15px;font-size:15px;font-family:inherit;margin-bottom:14px}
+/* Tiêu đề phân cách tháng trong danh sách giao dịch (V3 Phase 2) */
+.mhead{display:flex;align-items:baseline;gap:8px;margin:18px 2px 10px;padding-bottom:7px;
+  border-bottom:1px solid var(--line)}
+.mhead:first-child{margin-top:2px}
+.mhead .mh-t{font-family:'Fraunces';font-weight:600;font-size:16px;color:var(--navy)}
+.mhead .mh-s{font-size:12.5px;color:var(--muted);flex:1;text-align:right;font-variant-numeric:tabular-nums}
+
 .tx-wrap{position:relative;margin-bottom:9px;border-radius:15px;overflow:hidden}
 .tx-wrap .del-bg{position:absolute;inset:0;background:var(--red);display:flex;align-items:center;justify-content:flex-end;padding-right:24px;color:#fff;font-weight:700;font-size:15px;gap:7px}
 .tx-wrap .del-bg svg{width:21px;height:21px}
@@ -342,3 +349,35 @@ body.mode-net .hero{background:linear-gradient(135deg,#1a3a2e,#12305c)}
 .difftbl .pos{color:var(--green);font-weight:700}
 .difftbl .neg{color:var(--red);font-weight:700}
 .difftbl tfoot td{font-weight:800;border-top:2px solid var(--navy);border-bottom:none}
+
+/* ---------- Báo cáo dạng accordion (mobile) — V3 Phase 2 ----------
+   Mặc định (mobile-first): hiện accordion, ẩn bảng ngang.
+   Từ 768px (desktop.css) sẽ lật lại: hiện bảng, ẩn accordion. */
+.racc{display:block}
+.rtbl-wrap{display:none}
+.racc-item{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--paper2);overflow:hidden}
+.racc-sum{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;
+  list-style:none;font-size:14.5px;user-select:none}
+.racc-sum::-webkit-details-marker{display:none}
+.racc-mo{font-weight:700;color:var(--navy)}
+.racc-tot{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.racc-caret{color:var(--muted);transition:transform .2s;font-size:16px}
+.racc-item[open] .racc-caret{transform:rotate(180deg)}
+.racc-body{padding:4px 14px 14px;border-top:1px solid var(--line)}
+.racc-g{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:13.5px}
+.racc-g+.racc-g{border-top:1px dashed #ede7d8}
+.racc-gn{display:flex;align-items:center;gap:7px;color:var(--ink)}
+.racc-gn .hdot{display:inline-block;width:9px;height:9px;border-radius:2px}
+.racc-gv{font-variant-numeric:tabular-nums;font-weight:600}
+.racc-meta{margin-top:10px;font-size:12.5px;color:var(--muted)}
+.racc-cmp{margin-top:4px;font-size:12.5px;font-weight:600}
+.racc-cmp.up{color:var(--green)}
+.racc-cmp.down{color:var(--red)}
+.racc-grand{display:flex;justify-content:space-between;padding:13px 14px;margin-top:4px;
+  background:#efe9db;border-radius:12px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--navy)}
+
+/* Từ 768px: màn đủ rộng cho bảng ngang → hiện bảng, ẩn accordion */
+@media (min-width:768px){
+  .racc{display:none}
+  .rtbl-wrap{display:block}
+}

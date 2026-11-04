@@ -113,27 +113,57 @@ export function renderList(){
     return;
   }
 
-  el.innerHTML = rows.map(t => {
-    const type = typeOf(t);
-    const g = groupOf(t), G = groupStyleFor(type, g);
-    /* Dấu + màu theo loại để liếc là biết Thu/Chi/Hỗ trợ:
-       Thu +  (xanh) · Chi −  (đỏ) · Hỗ trợ ↔ (vàng) */
-    const sign  = type === 'out' ? '−' : (type === 'transfer' ? '↔ ' : '+');
-    /* nhãn chữ ngắn để phân biệt kể cả khi không nhìn màu */
-    const tag   = type === 'out' ? 'CHI' : (type === 'transfer' ? 'HỖ TRỢ' : 'THU');
-    return `<div class="tx-wrap">
-      <div class="del-bg" data-del="${t.id}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Xoá
+  /* Khi đang lọc 1 tháng thì mọi giao dịch cùng tháng → để phẳng, khỏi gom.
+     Còn lại: gom theo tháng, mỗi tháng một tiêu đề phân cách + dòng tiền ròng. */
+  if(moFilter !== null){
+    el.innerHTML = rows.map(txRow).join('');
+  }else{
+    el.innerHTML = groupByMonth(rows, year);
+  }
+}
+
+/* Dựng HTML một dòng giao dịch */
+function txRow(t){
+  const type = typeOf(t);
+  const g = groupOf(t), G = groupStyleFor(type, g);
+  /* Dấu + màu theo loại để liếc là biết Thu/Chi/Hỗ trợ:
+     Thu +  (xanh) · Chi −  (đỏ) · Hỗ trợ ↔ (vàng) */
+  const sign  = type === 'out' ? '−' : (type === 'transfer' ? '↔ ' : '+');
+  /* nhãn chữ ngắn để phân biệt kể cả khi không nhìn màu */
+  const tag   = type === 'out' ? 'CHI' : (type === 'transfer' ? 'HỖ TRỢ' : 'THU');
+  return `<div class="tx-wrap">
+    <div class="del-bg" data-del="${t.id}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>Xoá
+    </div>
+    <div class="tx tx-${type}" data-id="${t.id}">
+      <div class="tag" style="background:${G.c}">${G.e}</div>
+      <div class="mid">
+        <div class="n">${esc(t.note || '(không ghi chú)')}</div>
+        <div class="d"><span class="tbadge tb-${type}">${tag}</span>${fmtDate(t.date)} · ${g}</div>
       </div>
-      <div class="tx tx-${type}" data-id="${t.id}">
-        <div class="tag" style="background:${G.c}">${G.e}</div>
-        <div class="mid">
-          <div class="n">${esc(t.note || '(không ghi chú)')}</div>
-          <div class="d"><span class="tbadge tb-${type}">${tag}</span>${fmtDate(t.date)} · ${g}</div>
-        </div>
-        <div class="amt amt-${type}">${sign}${fmtVND(t.amount)}</div>
-      </div>
+      <div class="amt amt-${type}">${sign}${fmtVND(t.amount)}</div>
+    </div>
+  </div>`;
+}
+
+/* Gom các giao dịch (đã sort mới→cũ) theo tháng, giữ nguyên thứ tự.
+   Mỗi nhóm có tiêu đề "Tháng M/YYYY" + số khoản + dòng tiền ròng tháng đó. */
+function groupByMonth(rows, year){
+  const groups = [];          // [{mo, items:[]}]
+  let cur = null;
+  for(const t of rows){
+    const mo = new Date(t.date).getMonth();
+    if(!cur || cur.mo !== mo){ cur = { mo, items:[] }; groups.push(cur); }
+    cur.items.push(t);
+  }
+  return groups.map(grp => {
+    const net = grp.items.reduce((s,t) => s + (typeOf(t) === 'out' ? -t.amount : t.amount), 0);
+    const netStr = (net < 0 ? '−' : '+') + fmtVND(Math.abs(net));
+    const head = `<div class="mhead">
+      <span class="mh-t">Tháng ${grp.mo+1}/${year}</span>
+      <span class="mh-s">${grp.items.length} khoản · ${netStr}</span>
     </div>`;
+    return head + grp.items.map(txRow).join('');
   }).join('');
 }
 

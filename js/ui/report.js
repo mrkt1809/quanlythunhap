@@ -49,10 +49,52 @@ function matrixTable(R, type, year, word){
     ${R.hasPrev ? '<td></td><td></td>' : ''}
   </tr>`;
 
-  return `<div class="tbl-scroll">
+  return `<div class="tbl-scroll rtbl-wrap">
     <table class="rtbl">
       <thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot>
     </table>
+  </div>`;
+}
+
+/* Phiên bản ACCORDION của bảng nhóm — cho mobile, thay bảng vuốt ngang.
+   Mỗi tháng là một khối bấm mở; mở ra thấy các nhóm có phát sinh + luỹ kế
+   + so cùng kỳ. Dữ liệu y hệt matrixTable, chỉ khác cách trình bày. */
+function matrixAccordion(R, type, year){
+  const months = R.rows.filter(r => r.total > 0);   // chỉ tháng có số
+  const items = months.map(r => {
+    const groups = R.groups
+      .filter(g => (r.byGroup[g] || 0) > 0)
+      .map(g => {
+        const G = groupStyleFor(type, g);
+        return `<div class="racc-g">
+          <span class="racc-gn"><span class="hdot" style="background:${G.c}"></span>${esc(g)}</span>
+          <span class="racc-gv">${fmtVND(r.byGroup[g])}</span>
+        </div>`;
+      }).join('');
+
+    const cmp = (R.hasPrev && r.pct !== null)
+      ? `<div class="racc-cmp ${r.diff >= 0 ? 'up' : 'down'}">
+           ${r.diff >= 0 ? '▲' : '▼'} ${Math.abs(r.pct*100).toFixed(1)}% so cùng kỳ ${year-1}
+         </div>`
+      : '';
+
+    return `<details class="racc-item">
+      <summary class="racc-sum">
+        <span class="racc-mo">Tháng ${r.month}</span>
+        <span class="racc-tot">${fmtVND(r.total)}</span>
+        <span class="racc-caret" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="racc-body">
+        ${groups}
+        <div class="racc-meta">Luỹ kế: ${fmtVND(r.cum)}</div>
+        ${cmp}
+      </div>
+    </details>`;
+  }).join('');
+
+  return `<div class="racc">
+    ${items}
+    <div class="racc-grand"><span>Tổng năm</span><span>${fmtVND(R.grandTotal)}</span></div>
   </div>`;
 }
 
@@ -113,11 +155,12 @@ export function renderReport(txs, year){
 
   const blocks = [];
 
-  /* 1. Bảng THU */
+  /* 1. Bảng THU — bảng (desktop) + accordion (mobile), CSS chọn hiện cái nào */
   if(Rin.grandTotal){
     blocks.push(`<div class="rpt-block">
       <h4>📥 Thu nhập <span class="rb-tot in">${fmtShort(Rin.grandTotal)}</span></h4>
       ${matrixTable(Rin, 'in', year, 'thu')}
+      ${matrixAccordion(Rin, 'in', year)}
     </div>`);
   }
 
@@ -126,6 +169,7 @@ export function renderReport(txs, year){
     blocks.push(`<div class="rpt-block">
       <h4>📤 Chi tiêu <span class="rb-tot out">${fmtShort(Rout.grandTotal)}</span></h4>
       ${matrixTable(Rout, 'out', year, 'chi')}
+      ${matrixAccordion(Rout, 'out', year)}
     </div>`);
   }
 
@@ -136,7 +180,7 @@ export function renderReport(txs, year){
   </div>`);
 
   el.innerHTML = blocks.join('') +
-    `<div class="tbl-hint">Vuốt ngang để xem thêm cột · số liệu tính bằng đồng</div>`;
+    `<div class="tbl-hint">Bấm từng tháng để xem chi tiết · số liệu tính bằng đồng</div>`;
 
   const net = Rin.grandTotal - Rout.grandTotal;
   $('rptTitle').textContent = `Báo cáo ${year}`;
