@@ -20,3 +20,5 @@ body{
 .skel{color:#b9c6da;text-align:center;padding:40px}
 .empty{text-align:center;color:var(--muted);padding:50px 20px;font-size:14px}
 .empty .em{font-size:40px;margin-bottom:12px}
+.empty .empty-t{font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.empty .empty-h{font-size:13px;color:var(--muted);line-height:1.5;max-width:260px;margin:0 auto}

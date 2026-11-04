@@ -44,6 +44,38 @@ function renderTypeFilter(txs, year){
   }).join('');
 }
 
+/* Empty state theo ngữ cảnh: icon + tiêu đề + gợi ý hành động.
+   Phân biệt: đang tìm kiếm / lọc tháng / lọc loại cụ thể / rỗng cả năm. */
+function emptyState(q){
+  const TY = { in:['📥','khoản thu'], out:['📤','khoản chi'], transfer:['🤝','khoản hỗ trợ'] };
+  let icon = '🗂', title = '', hint = '';
+
+  if(q){
+    icon = '🔍';
+    title = 'Không tìm thấy giao dịch nào';
+    hint  = 'Thử từ khoá khác, hoặc xoá ô tìm kiếm để xem tất cả.';
+  } else if(moFilter !== null){
+    const [ic] = tyFilter ? TY[tyFilter] : ['🗓'];
+    icon = ic;
+    title = `Tháng ${moFilter+1} chưa có giao dịch`;
+    hint  = 'Bấm × ở thẻ phía trên để bỏ lọc tháng.';
+  } else if(tyFilter && TY[tyFilter]){
+    const [ic, noun] = TY[tyFilter];
+    icon = ic;
+    title = `Chưa có ${noun} nào năm nay`;
+    hint  = `Bấm “+ Thêm” ở trên để ghi ${noun} đầu tiên.`;
+  } else {
+    title = `Chưa có giao dịch năm này`;
+    hint  = 'Bấm “+ Thêm” để ghi giao dịch đầu tiên.';
+  }
+
+  return `<div class="empty">
+    <div class="em">${icon}</div>
+    <div class="empty-t">${title}</div>
+    <div class="empty-h">${hint}</div>
+  </div>`;
+}
+
 export function renderList(){
   const txs = getTxs(), year = getYear();
   if(year == null) return;
@@ -77,8 +109,7 @@ export function renderList(){
 
   const el = $('list');
   if(!rows.length){
-    const what = moFilter !== null ? ` tháng ${moFilter+1}` : (q ? ' khớp tìm kiếm' : ' năm ' + year);
-    el.innerHTML = `<div class="empty"><div class="em">🗂</div>Chưa có giao dịch${what}</div>`;
+    el.innerHTML = emptyState(q);
     return;
   }
 

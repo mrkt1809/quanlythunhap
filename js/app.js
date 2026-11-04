@@ -28,11 +28,18 @@ function showApp(on){
   document.body.classList.toggle('authed', on);
 }
 
+/* Kết thúc giai đoạn "đang kiểm tra phiên": gỡ .checking để hiện login/app.
+   Gọi khi Supabase đã trả lời (onAuth), hoặc khi app không cấu hình được. */
+function doneChecking(){
+  document.body.classList.remove('checking');
+}
+
 /* ---------- khởi động ---------- */
 if(!CONFIGURED){
+  doneChecking();                 // không có backend để kiểm tra → bỏ màn chờ ngay
   $('cfgWarn').style.display = 'block';
 } else {
-  store.init();
+  store.init();                   // onAuth sẽ gỡ .checking khi kiểm tra xong
 }
 
 /* gắn sự kiện tĩnh (chỉ 1 lần, không phụ thuộc dữ liệu) */
@@ -95,6 +102,7 @@ $('expRpt').addEventListener('click', () => {
 
 /* phản ứng khi đăng nhập / đăng xuất */
 store.onAuth(u => {
+  doneChecking();                 // Supabase đã trả lời → bỏ màn chờ (luôn gỡ, kể cả khi lỗi)
   if(u && u.error){ toast('Lỗi đọc dữ liệu: ' + u.error); return; }
   if(u){ $('password').value = ''; showApp(true); }
   else  { showApp(false); }

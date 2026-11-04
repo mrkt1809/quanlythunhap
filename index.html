@@ -18,8 +18,15 @@
 <!-- desktop.css nạp CUỐI: chỉ chứa @media (min-width:1024px), ghi đè các file trên -->
 <link rel="stylesheet" href="css/desktop.css">
 </head>
-<body>
+<body class="checking">
 <div class="wrap">
+
+  <!-- MÀN CHỜ: hiện trong lúc kiểm tra phiên đăng nhập, tránh nháy màn login -->
+  <div id="authLoading">
+    <div class="al-badge">Quản lý thu nhập</div>
+    <div class="al-spin" aria-hidden="true"></div>
+    <div class="al-text">Đang tải…</div>
+  </div>
 
   <!-- LOGIN -->
   <div id="login">

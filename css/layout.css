@@ -90,3 +90,22 @@ nav.tabs{display:none}
 body.authed #login{display:none}
 body.authed #app{display:flex}
 body.authed nav.tabs{display:flex}
+
+/* ---------- Màn chờ kiểm tra phiên (chống nháy login) ----------
+   body bắt đầu với class .checking (đặt sẵn trong HTML). Trong lúc này
+   ẩn cả login lẫn app, chỉ hiện #authLoading. app.js gỡ .checking khi
+   Supabase trả lời xong (dù đã đăng nhập hay chưa). Chỉ dùng class,
+   không set display inline — giữ đúng ràng buộc sidebar desktop. */
+#authLoading{display:none}
+body.checking #login{display:none}
+body.checking #authLoading{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;text-align:center;color:var(--paper);gap:18px
+}
+#authLoading .al-badge{font-family:'Fraunces';font-size:13px;letter-spacing:.4em;
+  text-transform:uppercase;color:var(--gold-soft)}
+#authLoading .al-text{color:#b9c6da;font-size:14px}
+#authLoading .al-spin{width:34px;height:34px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.18);border-top-color:var(--gold);
+  animation:al-rot .7s linear infinite}
+@keyframes al-rot{to{transform:rotate(360deg)}}

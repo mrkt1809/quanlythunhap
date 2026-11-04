@@ -33,7 +33,9 @@
 .kpi .m{font-size:11px;color:var(--muted);margin-top:3px}
 
 /* ---------- Card ---------- */
-.card{background:var(--paper2);border:1px solid var(--line);border-radius:var(--r);padding:17px;margin-top:14px}
+/* V3: card mềm hơn — bỏ viền cứng, thay bằng bóng rất nhẹ, để các khối
+   phân tách bằng độ nổi thay vì nhiều đường kẻ (giảm cảm giác khung lồng khung). */
+.card{background:var(--paper2);border:1px solid #efeadd;border-radius:var(--r);padding:17px;margin-top:14px;box-shadow:0 1px 3px rgba(10,31,60,.04)}
 .card h3{font-family:'Fraunces';font-weight:600;font-size:16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
 .card h3 .hint{font-family:'Plus Jakarta Sans';font-size:11px;color:var(--muted);font-weight:500}
 
@@ -130,11 +132,14 @@
 .tx .amt-in{color:var(--green)}
 .tx .amt-out{color:var(--red)}
 .tx .amt-transfer{color:var(--gold)}
-/* Viền trái theo loại: thêm một tín hiệu thị giác khi lướt nhanh danh sách */
-.tx{border-left:4px solid transparent}
-.tx.tx-in{border-left-color:var(--green)}
-.tx.tx-out{border-left-color:var(--red)}
-.tx.tx-transfer{border-left-color:var(--gold)}
+/* Viền trái theo loại: tín hiệu nhẹ khi lướt danh sách.
+   V3: mảnh lại (3px) + màu dịu hơn (hex cố định, không dùng color-mix
+   vì Safari iOS cũ chưa chắc hỗ trợ) — nhãn chữ THU/CHI/HỖ TRỢ và màu
+   số tiền vẫn gánh phần phân biệt chính, viền chỉ là gợi ý phụ. */
+.tx{border-left:3px solid transparent}
+.tx.tx-in{border-left-color:#9cc3ad}
+.tx.tx-out{border-left-color:#d9a8ad}
+.tx.tx-transfer{border-left-color:#dcc99a}
 
 /* nhãn chữ THU/CHI/HỖ TRỢ — liếc là biết loại, không cần phân biệt màu */
 .tbadge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.4px;

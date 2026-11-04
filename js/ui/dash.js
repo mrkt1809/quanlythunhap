@@ -35,7 +35,7 @@ export function bindYears(){
 
 /* ---- công tắc Thu / Chi / Thu–Chi ---- */
 function renderModeTabs(){
-  const tabs = [['in','Thu'],['out','Chi'],['net','Thu–Chi']];
+  const tabs = [['in','Thu'],['out','Chi'],['net','Dòng tiền']];
   $('modeTabs').innerHTML = tabs.map(([m,label]) =>
     `<button class="mode-tab ${m===mode?'on':''}" data-mode="${m}">${label}</button>`
   ).join('');
@@ -66,7 +66,19 @@ function renderCat(sorted, total, type){
           <div class="track"><div class="fill" style="width:${pct}%;background:${G.c}"></div></div>
         </div>`;
       }).join('')
-    : `<div class="empty">Chưa có dữ liệu năm này</div>`;
+    : emptyCat(type);
+}
+
+/* Empty state cho phần cơ cấu, theo loại đang xem */
+function emptyCat(type){
+  const M = {
+    in:  ['📥','Chưa có khoản thu nào','Bấm “+ Thêm” để ghi khoản thu đầu tiên.'],
+    out: ['📤','Chưa có khoản chi nào','Bấm “+ Thêm” để ghi khoản chi đầu tiên.'],
+    transfer: ['🤝','Chưa có khoản hỗ trợ nào','Bấm “+ Thêm” để ghi khoản hỗ trợ.']
+  };
+  const [ic, t, h] = M[type] || M.in;
+  return `<div class="empty"><div class="em">${ic}</div>
+    <div class="empty-t">${t}</div><div class="empty-h">${h}</div></div>`;
 }
 
 /* ============================================================
