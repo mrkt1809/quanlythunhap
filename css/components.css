@@ -53,19 +53,22 @@
 /* vùng vẽ */
 .plot{position:relative;flex:1;min-width:0}
 
-/* đường kẻ ngang, khớp đúng vị trí các mốc trục Y */
+/* đường kẻ ngang, khớp đúng vị trí các mốc trục Y.
+   V3 2b: lưới nhạt hơn để bớt rối, chỉ đường đáy rõ. */
 .grid{position:absolute;inset:0 0 20px 0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
-.gline{height:1px;background:var(--line);opacity:.7}
-.gline:last-child{opacity:1}
+.gline{height:1px;background:var(--line);opacity:.45}
+.gline:last-child{opacity:.9}
 
-.bars{position:relative;display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:8px}
+/* V3 2b: cột thoáng hơn (gap rộng), bo góc mềm hơn */
+.bars{position:relative;display:flex;align-items:flex-end;gap:9px;height:150px;padding-top:8px}
 .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;cursor:pointer;outline:none}
-.bcol .stack{width:100%;display:flex;flex-direction:column-reverse;border-radius:5px 5px 0 0;overflow:hidden;min-height:2px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
+.bcol .stack{width:100%;display:flex;flex-direction:column-reverse;border-radius:7px 7px 0 0;overflow:hidden;min-height:2px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
 .bcol .seg{width:100%}
 .bcol .mo{font-size:10px;color:var(--muted);font-weight:600;height:14px;line-height:14px}
 .bcol.cmp .stack{opacity:.28}
 .bcol .colbox{position:relative;width:100%;height:100%;display:flex;align-items:flex-end;justify-content:flex-end}
-.bcol .cmpbar{position:absolute;width:42%;left:4%;background:#9aa0a6;opacity:.3}
+/* V3 2b: bóng ma năm trước nhạt hơn để năm nay nổi bật */
+.bcol .cmpbar{position:absolute;width:42%;left:4%;background:#b4b9bf;opacity:.22;border-radius:5px 5px 0 0}
 
 /* cột đang được trỏ vào */
 .bcol.hot .stack{filter:brightness(1.1)}
@@ -304,8 +307,9 @@
 .mode-tab.on{background:var(--paper2);color:var(--navy);box-shadow:0 2px 6px rgba(0,0,0,.08)}
 
 /* Biểu đồ Thu vs Chi: 2 cột nhỏ cạnh nhau mỗi tháng */
-.netbox{position:relative;width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:3px}
-.nbar{width:38%;border-radius:4px 4px 0 0;min-height:2px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
+.netbox{position:relative;width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:4px}
+/* V3 2b: đồng bộ bo góc mềm với biểu đồ cột thường */
+.nbar{width:38%;border-radius:6px 6px 0 0;min-height:2px;transition:height .5s cubic-bezier(.2,.8,.2,1)}
 .nbar.nin{background:var(--green)}
 .nbar.nout{background:var(--red)}
 .netcol{cursor:default}
